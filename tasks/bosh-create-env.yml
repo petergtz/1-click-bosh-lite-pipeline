@@ -16,3 +16,9 @@ params:
 
 run:
   path: 1-click/tasks/bosh-create-env.sh
+
+caches:
+- path: .bosh/cache
+- path: .bosh/downloads
+- path: .bosh/installations
+- path: .bosh/tmp
