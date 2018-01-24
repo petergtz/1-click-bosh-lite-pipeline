@@ -91,7 +91,9 @@ jobs:
 - name: (( concat "update-cloud-config-" meta.bosh-lite-name ))
   plan:
   - aggregate:
-    - { get: (( concat meta.bosh-lite-name "-recreation-events" )), trigger: true }
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+      trigger: true
+      passed: [(( concat "recreate-" meta.bosh-lite-name ))]
     - { get: 1-click }
     - { get: cf-deployment-cloud-config, trigger: true }
   - task: Update cloud-config
