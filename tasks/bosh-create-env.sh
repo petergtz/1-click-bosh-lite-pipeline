@@ -9,6 +9,7 @@ tail -n1 /etc/hosts > state/environments/softlayer/director/$BOSH_LITE_NAME/host
 
 REPO_DIR=state \
     FILENAME="state/environments/softlayer/director/$BOSH_LITE_NAME/state.json state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml state/environments/softlayer/director/$BOSH_LITE_NAME/hosts" \
-    COMMIT_MESSAGE="Update state for environments/softlayer/director/$BOSH_LITE_NAME" tasks/commit-if-changed.sh
+    COMMIT_MESSAGE="Update state for environments/softlayer/director/$BOSH_LITE_NAME" \
+    1-click/tasks/commit-if-changed.sh
 
 cp -a state/. out-state
