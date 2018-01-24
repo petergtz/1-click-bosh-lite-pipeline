@@ -1,8 +1,16 @@
 resources:
-- name: bosh-lite-tasks
+- name: 1-click
   type: git
   source: 
-    uri: https://github.com:petergtz/1-click-bosh-lite-pipeline.git
+    uri: https://github.com/petergtz/1-click-bosh-lite-pipeline.git
+
+- name: bits-service-private-config
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    branch: master
+    private_key: {{github-private-key}}
+    disable_ci_skip: true
 
 - name: cf-deployment-cloud-config
   type: git
@@ -10,7 +18,7 @@ resources:
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
 
-- name: (( concat meta.bosh-lite-name "recreation-events" ))
+- name: (( concat meta.bosh-lite-name "-recreation-events" ))
   type: semver
   source: 
     driver: git
@@ -28,120 +36,78 @@ resources:
     file: (( concat "events/bosh-lites/" meta.bosh-lite-name "/deployments/cf/deleted" ))
     private_key: {{github-private-key}}
 
+- name: every-24h
+  type: time
+  source:
+    interval: 24h
+
 jobs:
 - name: (( concat "recreate-" meta.bosh-lite-name ))
   serial: true
   plan:
   - aggregate:
-    - get: bosh-lite-tasks
-    - get: (( concat meta.bosh-lite-name "recreation-events" ))
+    - get: 1-click
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
       params: { bump: major }
-  - task: recreate-bosh-lite
-    file: bosh-lite-tasks/recreate-bosh-lite.yml
-  - put: (( concat meta.bosh-lite-name "recreation-events" ))
+    - get: bits-service-private-config
+  # - task: bosh delete-env
+  #   file: 1-click/tasks/bosh-delete-env.yml
+  #   params:
+  #     IN: (( "bits-service-private-config/environments/softlayer/director/" meta.bosh-lite-name ))
+  #     MANIFEST: bits-service-private-config/environments/softlayer/director/bosh-warden-cpi.yml
+  - task: bosh create-env
+    file: 1-click/tasks/bosh-create-env.yml
+    input_mapping:
+      manifest-dir: bits-service-private-config
+      state: bits-service-private-config
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      MANIFEST: manifest-dir/environments/softlayer/director/bosh-warden-cpi.yml
+  - put: bits-service-private-config
+    params:
+      repository: out-state
+  - put: (( concat meta.bosh-lite-name "-recreation-events" ))
     params:
       file: (( concat meta.bosh-lite-name "recreation-events/number" ))
-  # on_failure: *notify
-
-# bosh1-params: &bosh1-params
-#   BOSH_TARGET: {{bosh-target}}
-#   BOSH_USERNAME: {{bosh-username}}
-#   BOSH_PASSWORD: {{bosh-password}}
 
 - name: (( concat "manually-delete-" meta.bosh-lite-name "-cf-deployment" ))
   serial: true
   plan:
   - aggregate:
-    - get: bosh-lite-tasks
+    - get: 1-click
     - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
       params: { bump: major }
   - task: delete-deployment
-    file: bosh-lite-tasks/tasks/delete-deployment.yml
+    file: 1-click/tasks/bosh-delete-deployment.yml
+    input_mapping:
+      state: bits-service-private-config
     params:
-      # <<: *bosh1-params
       DEPLOYMENT_NAME: cf
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
   - put: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
     params:
       file: (( concat meta.bosh-lite-name "-cf-deployment-events/number" ))
-  # on_failure: *notify
 
-- name: (( concat "update-cloud-config" meta.bosh-lite-name ))
+- name: (( concat "update-cloud-config-" meta.bosh-lite-name ))
   plan:
   - aggregate:
-    - { get: (( concat meta.bosh-lite-name "recreation-events" )), trigger: true }
-    - { get: bosh-lite-tasks }
+    - { get: (( concat meta.bosh-lite-name "-recreation-events" )), trigger: true }
+    - { get: 1-click }
     - { get: cf-deployment-cloud-config, trigger: true }
   - task: Update cloud-config
-    file: bosh-lite-tasks/update-cloud-config.yml
+    file: 1-click/update-cloud-config.yml
     input_mapping:
-      manifests: git-cf-deployment-cloud-config
+      cf-deployment: cf-deployment-cloud-config
+      state: bits-service-private-config
     params:
-      # <<: *bosh1-params
-      # MANIFEST: *bosh-lite-cloud-config-path
-  # on_failure: *notify
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
 
-# - name: (( concat "Deploy CF in " meta.bosh-lite-name "(" meta.cf-deployment-config ")" ))
-#   serial: true
-#   plan:
-#   - aggregate:
-#     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-#     - { get: bits-service-release-tarball, trigger: true }
-#     - { get: bits-service-release-version }
-#     - { get: cf-bosh1-deployment-events, trigger: true }
-#     - { get: stemcell, resource: boshlite-stemcell }
-#     - { get: bosh-lite-tasks, resource: git-bits-service-ci, trigger: true }
-#     - { get: git-cf-deployment, trigger: true }
-#     - { get: bosh1-recreation-events, passed: [ update-cloud-config-bosh1 ], trigger: true }
-#     - { get: git-cf-deployment-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
-#     - { get: git-deployment-vars }
-#     - { get: git-bits-service-release, trigger: true }
-#   - task: Generate CF deployment manifest with bits-service disabled
-#     file: bosh-lite-tasks/tasks/bosh-interpolate.yml
-#     input_mapping:
-#       cf-deployment: git-cf-deployment
-#       deployment-vars: git-deployment-vars
-#     output_mapping:
-#       manifests: cf-with-bits-service-disabled
-#     params: &bosh-interpolate-boshlite1-bits-service-disabled
-#       BOSH_TARGET: {{bosh-target}}
-#       DEPLOYMENT_NAME: cf
-#       ENVIRONMENT_NAME: bosh1
-#       BLOBSTORE_TYPE: s3
-#       IAAS: bosh-lite
-#       OPERATIONS: >
-#         -o cf-deployment/operations/use-s3-blobstore.yml
-#         -o bosh-lite-tasks/operations/disable-bits-service.yml
-#         -o bosh-lite-tasks/operations/bsmt-errands.yml
-#       VARIABLES: >
-#         -v aws_region={{cf-migration-s3-blobstore-region}}
-#         -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
-#         -v blobstore_secret_access_key={{cf-migration-s3-blobstore-secret-access-key}}
-#         -v resource_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-#         -v buildpack_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-#         -v droplet_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-#         -v app_package_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-#       CF_DOMAIN: boshlite1.dynamic-dns.net
-#   - put: git-deployment-vars
-#     params:
-#       repository: updated/deployment-vars
-#   - put: boshlite1-deployment
-#     params: &params-deployment-bits-service-disabled
-#       manifest: cf-with-bits-service-disabled/manifest.yml
-#       stemcells: ["stemcell/stemcell.tgz"]
-#       releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
-#       no_redact: true
-#   on_failure: *notify
-
-# - name: cleanup-bosh-1
-#   serial: true
-#   plan:
-#   - get: bosh-lite-tasks
-#     resource: git-bits-service-ci
-#   - get: nightly-timer
-#     trigger: true
-#   - task: cleanup-bosh
-#     file: bosh-lite-tasks/tasks/bosh-cleanup.yml
-#     params: *bosh1-params
-#   on_failure: *notify
+- name: (( concat "clean-up-" meta.bosh-lite-name ))
+  serial: true
+  plan:
+  - { get: 1-click }
+  - { get: every-24h, trigger: true }
+  - task: bosh clean-up
+    file: 1-click/tasks/bosh-clean-up.yml
 
 
