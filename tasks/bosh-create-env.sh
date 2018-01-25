@@ -3,7 +3,8 @@
 sudo bosh2 create-env \
     --state state/environments/softlayer/director/$BOSH_LITE_NAME/state.json \
     --vars-store=state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml \
-    $MANIFEST
+    $MANIFEST \
+    -v director_vm_prefix=$BOSH_LITE_NAME
 
 tail -n1 /etc/hosts > state/environments/softlayer/director/$BOSH_LITE_NAME/hosts
 
