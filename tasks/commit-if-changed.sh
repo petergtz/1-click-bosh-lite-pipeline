@@ -9,7 +9,7 @@ if [[ -z "${REPO_DIR}" ]] || [[ -z "${FILENAME}" ]] || [[ -z "${COMMIT_MESSAGE}"
 fi
 
 pushd "${REPO_DIR}"
-  git add $FILENAME
+  git $OP $FILENAME
   set +e
     git --no-pager diff --cached --exit-code
     HAS_CHANGES=$?

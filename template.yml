@@ -45,6 +45,29 @@ resources:
     interval: 24h
 
 jobs:
+- name: (( concat "delete-" meta.bosh-lite-name ))
+  serial: true
+  plan:
+  - aggregate:
+    - get: 1-click
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+      params: { bump: major }
+    - get: bits-service-private-config
+  - task: bosh delete-env
+    file: 1-click/tasks/bosh-delete-env.yml
+    input_mapping:
+      manifest-dir: bits-service-private-config
+      state: bits-service-private-config
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      MANIFEST: manifest-dir/environments/softlayer/director/bosh-warden-cpi.yml
+  - put: bits-service-private-config
+    params:
+      repository: out-state
+  - put: (( concat meta.bosh-lite-name "-recreation-events" ))
+    params:
+      file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
+
 - name: (( concat "recreate-" meta.bosh-lite-name ))
   serial: true
   plan:
@@ -52,6 +75,8 @@ jobs:
     - get: 1-click
     - get: (( concat meta.bosh-lite-name "-recreation-events" ))
       params: { bump: major }
+      trigger: true
+      passed: [ (( concat "delete-" meta.bosh-lite-name )) ]
     - get: bits-service-private-config
   # - task: bosh delete-env
   #   file: 1-click/tasks/bosh-delete-env.yml
@@ -82,7 +107,7 @@ jobs:
       params: { bump: major }
     - get: bits-service-private-config
     - get: cf-deployment
-    - { get: stemcell, resource: boshlite-stemcell }
+    - { get: stemcell, resource: boshlite-stemcell, version: {version: "3468.19"} }
   - task: Generate cf deployment manifest
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     input_mapping:

@@ -1,6 +1,8 @@
 #!/bin/bash -ex
 
-sudo bosh2 create-env \
+mkdir -p environments/softlayer/director/$BOSH_LITE_NAME
+
+bosh2 create-env \
     --state state/environments/softlayer/director/$BOSH_LITE_NAME/state.json \
     --vars-store=state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml \
     $MANIFEST \
@@ -9,6 +11,7 @@ sudo bosh2 create-env \
 tail -n1 /etc/hosts > state/environments/softlayer/director/$BOSH_LITE_NAME/hosts
 
 REPO_DIR=state \
+    OP=add \
     FILENAME="environments/softlayer/director/$BOSH_LITE_NAME/state.json environments/softlayer/director/$BOSH_LITE_NAME/vars.yml environments/softlayer/director/$BOSH_LITE_NAME/hosts" \
     COMMIT_MESSAGE="Update state for environments/softlayer/director/$BOSH_LITE_NAME" \
     1-click/tasks/commit-if-changed.sh
