@@ -9,4 +9,4 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
 popd
 
 bosh2 -e my-env upload-stemcell stemcell/stemcell.tgz
-bosh2 -n -e my-env deploy manifest/manifest.yml --no-redact
+bosh2 -n -e my-env -d cf deploy manifest/manifest.yml --no-redact
