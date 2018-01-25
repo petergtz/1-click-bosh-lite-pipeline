@@ -24,7 +24,7 @@ resources:
     driver: git
     uri: (( grab meta.events-git-repo ))
     branch: events
-    file: (( concat "events/bosh-lites/" meta.bosh-lite-name "/recreated" ))
+    file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-created" ))
     private_key: {{github-private-key}}
 
 - name: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
@@ -68,7 +68,7 @@ jobs:
       repository: out-state
   - put: (( concat meta.bosh-lite-name "-recreation-events" ))
     params:
-      file: (( concat meta.bosh-lite-name "/recreation-events/number" ))
+      file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
 
 - name: (( concat "manually-delete-" meta.bosh-lite-name "-cf-deployment" ))
   serial: true
@@ -99,7 +99,7 @@ jobs:
     - { get: cf-deployment-cloud-config, trigger: true }
     - get: bits-service-private-config
   - task: Update cloud-config
-    file: 1-click/update-cloud-config.yml
+    file: 1-click/tasks/update-cloud-config.yml
     input_mapping:
       cf-deployment: cf-deployment-cloud-config
       state: bits-service-private-config
