@@ -12,11 +12,14 @@ resources:
     private_key: {{github-private-key}}
     disable_ci_skip: true
 
-- name: cf-deployment-cloud-config
+- name: cf-deployment
   type: git
   source: 
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
+- name: boshlite-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent}
 
 - name: (( concat meta.bosh-lite-name "-recreation-events" ))
   type: semver
@@ -70,6 +73,32 @@ jobs:
     params:
       file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
 
+- name: (( concat "deploy-cf-in-" meta.bosh-lite-name ))
+  serial: true
+  plan:
+  - aggregate:
+    - get: 1-click
+    - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+      params: { bump: major }
+    - get: bits-service-private-config
+    - get: cf-deployment
+    - { get: stemcell, resource: boshlite-stemcell }
+  - task: Generate cf deployment manifest
+    file: 1-click/tasks/generate-cf-deployment-manifest.yml
+    input_mapping:
+      state: bits-service-private-config
+    output_mapping:
+      out: manifest
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
+  - task: Deploy cf
+    file: 1-click/tasks/bosh-deploy.yml
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+    input_mapping:
+      state: bits-service-private-config
+
 - name: (( concat "manually-delete-" meta.bosh-lite-name "-cf-deployment" ))
   serial: true
   plan:
@@ -96,12 +125,12 @@ jobs:
       trigger: true
       passed: [(( concat "recreate-" meta.bosh-lite-name ))]
     - { get: 1-click }
-    - { get: cf-deployment-cloud-config, trigger: true }
+    - { get: cf-deployment, trigger: true }
     - get: bits-service-private-config
   - task: Update cloud-config
     file: 1-click/tasks/update-cloud-config.yml
     input_mapping:
-      cf-deployment: cf-deployment-cloud-config
+      cf-deployment: cf-deployment
       state: bits-service-private-config
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
