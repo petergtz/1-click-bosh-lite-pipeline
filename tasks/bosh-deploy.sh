@@ -8,5 +8,5 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
     export BOSH_CLIENT_SECRET=`bosh2 int ./vars.yml --path /admin_password`
 popd
 
-bosh2 -e my-env upload-stemcell stemcell/stemmcell.tgz
+bosh2 -e my-env upload-stemcell stemcell/stemcell.tgz
 bosh2 -n -e my-env deploy manifest/manifest.yml --no-redact
