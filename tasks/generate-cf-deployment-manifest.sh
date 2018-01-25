@@ -11,6 +11,7 @@ echo "Content of manifest.yml:"
 cat out/manifest.yml
 
 REPO_DIR=state \
+    OP=add \
     FILENAME=environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/vars.yml \
     COMMIT_MESSAGE="Update state for environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment" \
     ./1-click/tasks/commit-if-changed.sh
