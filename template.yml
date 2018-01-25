@@ -68,7 +68,7 @@ jobs:
       repository: out-state
   - put: (( concat meta.bosh-lite-name "-recreation-events" ))
     params:
-      file: (( concat meta.bosh-lite-name "recreation-events/number" ))
+      file: (( concat meta.bosh-lite-name "/recreation-events/number" ))
 
 - name: (( concat "manually-delete-" meta.bosh-lite-name "-cf-deployment" ))
   serial: true
@@ -77,6 +77,7 @@ jobs:
     - get: 1-click
     - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
       params: { bump: major }
+    - get: bits-service-private-config
   - task: delete-deployment
     file: 1-click/tasks/bosh-delete-deployment.yml
     input_mapping:
@@ -96,6 +97,7 @@ jobs:
       passed: [(( concat "recreate-" meta.bosh-lite-name ))]
     - { get: 1-click }
     - { get: cf-deployment-cloud-config, trigger: true }
+    - get: bits-service-private-config
   - task: Update cloud-config
     file: 1-click/update-cloud-config.yml
     input_mapping:
@@ -107,9 +109,15 @@ jobs:
 - name: (( concat "clean-up-" meta.bosh-lite-name ))
   serial: true
   plan:
-  - { get: 1-click }
-  - { get: every-24h, trigger: true }
+  - aggregate:
+    - { get: 1-click }
+    - { get: every-24h, trigger: true }
+    - get: bits-service-private-config
   - task: bosh clean-up
     file: 1-click/tasks/bosh-clean-up.yml
+    input_mapping:
+      state: bits-service-private-config
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
 
 
