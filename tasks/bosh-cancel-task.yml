@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+  - name: 1-click
+  - name: state
+
+params:
+  BOSH_LITE_NAME: unconfigured
+  DEPLOYMENT_NAME: unconfigured
+
+run:
+  path: 1-click/tasks/bosh-cancel-task.sh
