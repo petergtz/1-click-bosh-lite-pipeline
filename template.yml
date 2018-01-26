@@ -98,6 +98,23 @@ jobs:
     params:
       file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
 
+- name: (( concat "update-cloud-config-" meta.bosh-lite-name ))
+  plan:
+  - aggregate:
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+      trigger: true
+      passed: [(( concat "recreate-" meta.bosh-lite-name ))]
+    - { get: 1-click }
+    - { get: cf-deployment, trigger: true }
+    - get: bits-service-private-config
+  - task: Update cloud-config
+    file: 1-click/tasks/update-cloud-config.yml
+    input_mapping:
+      cf-deployment: cf-deployment
+      state: bits-service-private-config
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+
 - name: (( concat "delete-" meta.bosh-lite-name "-cf-deployment" ))
   serial: true
   plan:
@@ -146,23 +163,6 @@ jobs:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
     input_mapping:
       state: bits-service-private-config
-
-- name: (( concat "update-cloud-config-" meta.bosh-lite-name ))
-  plan:
-  - aggregate:
-    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
-      trigger: true
-      passed: [(( concat "recreate-" meta.bosh-lite-name ))]
-    - { get: 1-click }
-    - { get: cf-deployment, trigger: true }
-    - get: bits-service-private-config
-  - task: Update cloud-config
-    file: 1-click/tasks/update-cloud-config.yml
-    input_mapping:
-      cf-deployment: cf-deployment
-      state: bits-service-private-config
-    params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
 
 - name: (( concat "clean-up-" meta.bosh-lite-name ))
   serial: true
