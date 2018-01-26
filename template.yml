@@ -178,4 +178,18 @@ jobs:
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
 
+- name: (( concat "cancel-cf-deployment-task-in-" meta.bosh-lite-name ))
+  serial: true
+  plan:
+  - aggregate:
+    - { get: 1-click }
+    - get: bits-service-private-config
+  - task: bosh -d cf cancel-task 
+    file: 1-click/tasks/bosh-cancel-task.yml
+    input_mapping:
+      state: bits-service-private-config
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      DEPLOYMENT_NAME: cf
+
 
