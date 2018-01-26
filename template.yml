@@ -17,6 +17,11 @@ resources:
   source: 
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
+- name: cf-smoke-tests
+  type: git
+  source: 
+    uri: https://github.com/cloudfoundry/cf-smoke-tests.git
+
 - name: boshlite-stemcell
   type: bosh-io-stemcell
   source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent}
@@ -157,13 +162,38 @@ jobs:
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
-  - task: Deploy cf
-    file: 1-click/tasks/bosh-deploy.yml
+  - aggregate:
+    - put: bits-service-private-config
+      params:
+        repository: out-state
+    - task: Deploy cf
+      file: 1-click/tasks/bosh-deploy.yml
+      params:
+        BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      input_mapping:
+        state: bits-service-private-config
+
+- name:  (( concat "run-cf-smoke-tests-in-" meta.bosh-lite-name ))
+  serial: true
+  plan:
+  - aggregate:
+    - get: 1-click
+    - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+      passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
+      trigger: true
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+      trigger: true
+      passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
+    - get: bits-service-private-config
+    - get: cf-smoke-tests
+  - task: Run smoke-tests
+    file: 1-click/tasks/run-smoke-tests.yml
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
     input_mapping:
       state: bits-service-private-config
-
+  
 - name: (( concat "clean-up-" meta.bosh-lite-name ))
   serial: true
   plan:
