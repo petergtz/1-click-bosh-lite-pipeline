@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+  - name: 1-click
+  - name: state
+
+params:
+  BOSH_LITE_NAME: unconfigured
+  CHANGE_IP_USER: unconfigured
+  CHANGE_IP_PASSWORD: unconfigured
+  CF_SYSTEM_DOMAIN: unconfigured
+  
+run:
+  path: 1-click/tasks/update-changeip-dns.sh
