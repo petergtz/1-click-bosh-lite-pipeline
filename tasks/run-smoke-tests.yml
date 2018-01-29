@@ -11,7 +11,6 @@ inputs:
 params:
   BOSH_LITE_NAME: unconfigured
   CF_SYSTEM_DOMAIN: unconfigured
-  NODES: 2
 
 run:
   path: 1-click/tasks/run-smoke-tests.sh
