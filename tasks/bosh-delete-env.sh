@@ -7,10 +7,12 @@ fi
 
 cat state/environments/softlayer/director/$BOSH_LITE_NAME/hosts >> /etc/hosts
 
+echo "$MANIFEST" > bosh.yml
+
 bosh2 delete-env \
     --state state/environments/softlayer/director/$BOSH_LITE_NAME/state.json \
     --vars-store=state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml \
-    $MANIFEST \
+    bosh.yml \
     -v director_vm_prefix=$BOSH_LITE_NAME
 
 rm -f state/environments/softlayer/director/$BOSH_LITE_NAME/state.json
