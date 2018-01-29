@@ -61,11 +61,10 @@ jobs:
   - task: bosh delete-env
     file: 1-click/tasks/bosh-delete-env.yml
     input_mapping:
-      manifest-dir: bits-service-private-config
       state: bits-service-private-config
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
-      MANIFEST: manifest-dir/environments/softlayer/director/bosh-warden-cpi.yml
+      MANIFEST: {{bosh-manifest}}
   - put: bits-service-private-config
     params:
       repository: out-state
@@ -83,11 +82,6 @@ jobs:
       trigger: true
       passed: [ (( concat "delete-" meta.bosh-lite-name )) ]
     - get: bits-service-private-config
-  # - task: bosh delete-env
-  #   file: 1-click/tasks/bosh-delete-env.yml
-  #   params:
-  #     IN: (( "bits-service-private-config/environments/softlayer/director/" meta.bosh-lite-name ))
-  #     MANIFEST: bits-service-private-config/environments/softlayer/director/bosh-warden-cpi.yml
   - task: bosh create-env
     file: 1-click/tasks/bosh-create-env.yml
     input_mapping:
@@ -95,7 +89,7 @@ jobs:
       state: bits-service-private-config
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
-      MANIFEST: manifest-dir/environments/softlayer/director/bosh-warden-cpi.yml
+      MANIFEST: {{bosh-manifest}}
   - put: bits-service-private-config
     params:
       repository: out-state
