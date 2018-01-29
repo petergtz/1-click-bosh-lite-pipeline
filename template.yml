@@ -166,6 +166,16 @@ jobs:
         BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       input_mapping:
         state: bits-service-private-config
+  # TODO: Do we want to keep this here? This task makes the pipline less generally useful.
+  - task: Update changeip.com
+    file: 1-click/tasks/update-changeip-dns.yml
+    input_mapping:
+      state: bits-service-private-config
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      CHANGE_IP_USER: {{changeip-username}}
+      CHANGE_IP_PASSWORD: {{changeip-password}}
+      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
 
 - name:  (( concat "run-cf-smoke-tests-in-" meta.bosh-lite-name ))
   serial: true
