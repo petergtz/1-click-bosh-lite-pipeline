@@ -2,7 +2,7 @@
 
 mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME
 
-echo "$MANIFEST" > bosh.yml
+echo "$MANIFEST" | sed -e 's/_(_(/((/g' > bosh.yml
 
 bosh2 create-env \
     --state state/environments/softlayer/director/$BOSH_LITE_NAME/state.json \

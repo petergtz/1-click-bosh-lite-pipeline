@@ -7,7 +7,7 @@ fi
 
 cat state/environments/softlayer/director/$BOSH_LITE_NAME/hosts >> /etc/hosts
 
-echo "$MANIFEST" > bosh.yml
+echo "$MANIFEST" | sed -e 's/_(_(/((/g' > bosh.yml
 
 bosh2 delete-env \
     --state state/environments/softlayer/director/$BOSH_LITE_NAME/state.json \
