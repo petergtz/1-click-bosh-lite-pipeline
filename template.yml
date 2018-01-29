@@ -44,10 +44,11 @@ resources:
     file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-deployments-cf-deleted" ))
     private_key: {{github-private-key}}
 
-- name: every-24h
+- name: every-night
   type: time
   source:
-    interval: 24h
+    start: 1:00 AM
+    stop: 2:00 AM
 
 jobs:
 - name: (( concat "delete-" meta.bosh-lite-name ))
@@ -203,7 +204,7 @@ jobs:
   plan:
   - aggregate:
     - { get: 1-click }
-    - { get: every-24h, trigger: true }
+    - { get: every-night, trigger: true }
     - get: bits-service-private-config
   - task: bosh clean-up
     file: 1-click/tasks/bosh-clean-up.yml
