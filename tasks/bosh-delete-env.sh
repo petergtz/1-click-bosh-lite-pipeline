@@ -2,6 +2,7 @@
 
 if [ ! -e state/environments/softlayer/director/$BOSH_LITE_NAME/state.json ]; then
   echo 'Nothing to delete'
+  cp -a state/. out-state
   exit 0
 fi
 
