@@ -7,7 +7,8 @@ resources:
 - name: state-repo
   type: git
   source:
-    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    # TODO Grab via spruce
+    uri: &state-repo-uri git@github.com:cloudfoundry/bits-service-private-config.git
     branch: master
     private_key: {{github-private-key}}
     disable_ci_skip: true
@@ -219,13 +220,22 @@ jobs:
   plan:
   - aggregate:
     - { get: 1-click }
-    - get: bits-service-private-config
-  - task: bosh -d cf cancel-task 
+    - get: state-repo
+  - task: bosh -d cf cancel-task
     file: 1-click/tasks/bosh-cancel-task.yml
     input_mapping:
-      state: bits-service-private-config
+      state: state-repo
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       DEPLOYMENT_NAME: cf
 
-
+- name: (( concat "show-summary-" meta.bosh-lite-name ))
+  plan:
+  - task: Show Summary
+    file: 1-click/tasks/show-summary.yml
+    input_mapping:
+      state: state-repo
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
+      STATE_REPO_URI: *state-repo-uri
