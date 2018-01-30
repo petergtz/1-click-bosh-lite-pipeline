@@ -1,10 +1,10 @@
 resources:
 - name: 1-click
   type: git
-  source: 
+  source:
     uri: https://github.com/petergtz/1-click-bosh-lite-pipeline.git
 
-- name: bits-service-private-config
+- name: state-repo
   type: git
   source:
     uri: git@github.com:cloudfoundry/bits-service-private-config.git
@@ -14,12 +14,12 @@ resources:
 
 - name: cf-deployment
   type: git
-  source: 
+  source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
 - name: cf-smoke-tests
   type: git
-  source: 
+  source:
     uri: https://github.com/cloudfoundry/cf-smoke-tests.git
 
 - name: boshlite-stemcell
@@ -28,7 +28,7 @@ resources:
 
 - name: (( concat meta.bosh-lite-name "-recreation-events" ))
   type: semver
-  source: 
+  source:
     driver: git
     uri: (( grab meta.events-git-repo ))
     branch: events
@@ -58,15 +58,15 @@ jobs:
     - get: 1-click
     - get: (( concat meta.bosh-lite-name "-recreation-events" ))
       params: { bump: major }
-    - get: bits-service-private-config
+    - get: state-repo
   - task: bosh delete-env
     file: 1-click/tasks/bosh-delete-env.yml
     input_mapping:
-      state: bits-service-private-config
+      state: state-repo
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       MANIFEST: {{bosh-manifest}}
-  - put: bits-service-private-config
+  - put: state-repo
     params:
       repository: out-state
   - put: (( concat meta.bosh-lite-name "-recreation-events" ))
@@ -82,16 +82,17 @@ jobs:
       params: { bump: major }
       trigger: true
       passed: [ (( concat "delete-" meta.bosh-lite-name )) ]
-    - get: bits-service-private-config
+    - get: state-repo
   - task: bosh create-env
     file: 1-click/tasks/bosh-create-env.yml
     input_mapping:
-      manifest-dir: bits-service-private-config
-      state: bits-service-private-config
+      # TODO Is this used anywhere?
+      manifest-dir: state-repo
+      state: state-repo
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       MANIFEST: {{bosh-manifest}}
-  - put: bits-service-private-config
+  - put: state-repo
     params:
       repository: out-state
   - put: (( concat meta.bosh-lite-name "-recreation-events" ))
@@ -106,12 +107,12 @@ jobs:
       passed: [(( concat "recreate-" meta.bosh-lite-name ))]
     - { get: 1-click }
     - { get: cf-deployment, trigger: true }
-    - get: bits-service-private-config
+    - get: state-repo
   - task: Update cloud-config
     file: 1-click/tasks/update-cloud-config.yml
     input_mapping:
       cf-deployment: cf-deployment
-      state: bits-service-private-config
+      state: state-repo
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
 
@@ -123,11 +124,11 @@ jobs:
     - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
       params: { bump: major }
       trigger: true
-    - get: bits-service-private-config
+    - get: state-repo
   - task: delete-deployment
     file: 1-click/tasks/bosh-delete-deployment.yml
     input_mapping:
-      state: bits-service-private-config
+      state: state-repo
     params:
       DEPLOYMENT_NAME: cf
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
@@ -145,20 +146,20 @@ jobs:
     - get: (( concat meta.bosh-lite-name "-recreation-events" ))
       trigger: true
       passed: [ (( concat "update-cloud-config-" meta.bosh-lite-name )) ]
-    - get: bits-service-private-config
+    - get: state-repo
     - get: cf-deployment
     - { get: stemcell, resource: boshlite-stemcell, version: {version: "3468.19"} }
   - task: Generate cf deployment manifest
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     input_mapping:
-      state: bits-service-private-config
+      state: state-repo
     output_mapping:
       out: manifest
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
   - aggregate:
-    - put: bits-service-private-config
+    - put: state-repo
       params:
         repository: out-state
     - task: Deploy cf
@@ -166,12 +167,12 @@ jobs:
       params:
         BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       input_mapping:
-        state: bits-service-private-config
+        state: state-repo
   # TODO: Do we want to keep this here? This task makes the pipline less generally useful.
   - task: Update changeip.com
     file: 1-click/tasks/update-changeip-dns.yml
     input_mapping:
-      state: bits-service-private-config
+      state: state-repo
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CHANGE_IP_USER: {{changeip-username}}
@@ -189,7 +190,7 @@ jobs:
     - get: (( concat meta.bosh-lite-name "-recreation-events" ))
       trigger: true
       passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
-    - get: bits-service-private-config
+    - get: state-repo
     - get: cf-smoke-tests
   - task: Run smoke-tests
     file: 1-click/tasks/run-smoke-tests.yml
@@ -197,19 +198,19 @@ jobs:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
     input_mapping:
-      state: bits-service-private-config
-  
+      state: state-repo
+
 - name: (( concat "clean-up-" meta.bosh-lite-name ))
   serial: true
   plan:
   - aggregate:
     - { get: 1-click }
     - { get: every-night, trigger: true }
-    - get: bits-service-private-config
+    - get: state-repo
   - task: bosh clean-up
     file: 1-click/tasks/bosh-clean-up.yml
     input_mapping:
-      state: bits-service-private-config
+      state: state-repo
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
 
