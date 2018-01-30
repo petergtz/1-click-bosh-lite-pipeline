@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 . 1-click/tasks/bosh-login.sh
 
