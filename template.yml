@@ -7,8 +7,7 @@ resources:
 - name: state-repo
   type: git
   source:
-    # TODO Grab via spruce
-    uri: &state-repo-uri git@github.com:cloudfoundry/bits-service-private-config.git
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
     branch: master
     private_key: {{github-private-key}}
     disable_ci_skip: true
@@ -238,4 +237,3 @@ jobs:
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
-      STATE_REPO_URI: *state-repo-uri

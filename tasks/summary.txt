@@ -1,7 +1,3 @@
-#
-# Clone $STATE_REPO_URI (or git-pull it, if already cloned)
-#
-
 # Add the contents of `hosts` to your /etc/hosts file
 sudo sh -c 'echo "$HOSTS_ENTRY" >> /etc/hosts'
 
