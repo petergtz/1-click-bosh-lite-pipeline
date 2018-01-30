@@ -122,6 +122,7 @@ jobs:
     - get: 1-click
     - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
       params: { bump: major }
+      trigger: true
     - get: bits-service-private-config
   - task: delete-deployment
     file: 1-click/tasks/bosh-delete-deployment.yml
@@ -140,7 +141,6 @@ jobs:
   - aggregate:
     - get: 1-click
     - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
-      passed: [ (( concat "delete-" meta.bosh-lite-name "-cf-deployment" )) ]
       trigger: true
     - get: (( concat meta.bosh-lite-name "-recreation-events" ))
       trigger: true

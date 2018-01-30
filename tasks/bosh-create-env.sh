@@ -2,6 +2,8 @@
 
 mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME
 
+# Hack to work around Concourse, which tries to interpret ((variables)).
+# Simply "unescaping" `_(_(` to `((`: 
 echo "$MANIFEST" | sed -e 's/_(_(/((/g' > bosh.yml
 
 bosh2 create-env \
