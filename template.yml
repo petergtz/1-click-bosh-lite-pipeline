@@ -157,14 +157,12 @@ jobs:
       file: 1-click/tasks/bosh-deploy.yml
       params:
         BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
-  # TODO: Do we want to keep this here? This task makes the pipline less generally useful.
-  - task: Update changeip.com
-    file: 1-click/tasks/update-changeip-dns.yml
-    params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
-      CHANGE_IP_USER: {{changeip-username}}
-      CHANGE_IP_PASSWORD: {{changeip-password}}
-      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
+    # TODO: Do we want to keep this here? This task makes the pipline less generally useful.
+    - task: Check system_domain DNS
+      file: 1-click/tasks/update-changeip-dns.yml
+      params:
+        BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+        CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
 
 - name:  (( concat "run-cf-smoke-tests-in-" meta.bosh-lite-name ))
   serial: true
