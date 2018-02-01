@@ -7,7 +7,7 @@ resources:
 - name: state
   type: git
   source:
-    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    uri: (( grab meta.state-git-repo ))
     branch: master
     private_key: {{github-private-key}}
     disable_ci_skip: true
@@ -30,7 +30,7 @@ resources:
   type: semver
   source:
     driver: git
-    uri: (( grab meta.events-git-repo ))
+    uri: (( grab meta.state-git-repo ))
     branch: events
     file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-created" ))
     private_key: {{github-private-key}}
@@ -39,7 +39,7 @@ resources:
   type: semver
   source:
     driver: git
-    uri:  (( grab meta.events-git-repo ))
+    uri:  (( grab meta.state-git-repo ))
     branch: events
     file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-deployments-cf-deleted" ))
     private_key: {{github-private-key}}
