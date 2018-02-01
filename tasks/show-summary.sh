@@ -6,8 +6,4 @@ export CF_ADMIN_PASSWORD="$(bosh2 interpolate "state/environments/softlayer/dire
 export CA_CERT="$(bosh2 interpolate state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml --path /director_ssl/ca)"
 export CLIENT_SECRET="$(bosh2 interpolate state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml --path /admin_password)"
 
-# TODO Update pipeline image
-apt-get -y update
-apt-get -y install gettext
-
 envsubst < 1-click/tasks/summary.txt
