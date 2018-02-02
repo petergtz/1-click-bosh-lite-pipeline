@@ -67,6 +67,7 @@ jobs:
   - put: state
     params:
       repository: out-state
+      rebase: true
   - put: (( concat meta.bosh-lite-name "-recreation-events" ))
     params:
       file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
@@ -92,6 +93,7 @@ jobs:
   - put: state
     params:
       repository: out-state
+      rebase: true
   - put: (( concat meta.bosh-lite-name "-recreation-events" ))
     params:
       file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
@@ -153,6 +155,7 @@ jobs:
     - put: state
       params:
         repository: out-state
+        rebase: true
     - task: Deploy cf
       file: 1-click/tasks/bosh-deploy.yml
       params:
