@@ -1,0 +1,19 @@
+- type: replace
+  path: /instance_groups/name=bosh/networks
+  value: 
+    - name: default
+      default: [dns, gateway]
+
+- type: replace
+  path: /networks
+  value:
+  - name: default
+    type: dynamic
+    dns: [8.8.8.8]
+    cloud_properties:
+      PrimaryNetworkComponent:
+        NetworkVlan:
+          Id: ((sl_vlan_public))
+      PrimaryBackendNetworkComponent:
+        NetworkVlan:
+          Id: ((sl_vlan_private))

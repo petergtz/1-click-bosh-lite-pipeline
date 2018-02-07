@@ -1,0 +1,27 @@
+# Move network cloud_properties back to resource_pools from networks:
+- type: remove
+  path: /networks/name=default/cloud_properties?
+- type: replace
+  path: /resource_pools/name=vms/cloud_properties/PrimaryNetworkComponent?
+  value:
+    NetworkVlan:
+      Id: ((sl_vlan_public))
+- type: replace
+  path: /resource_pools/name=vms/cloud_properties/PrimaryBackendNetworkComponent?
+  value:
+    NetworkVlan:
+      Id: ((sl_vlan_private))
+
+# Increase MaxSpeed again to 1000. This could likely be the reason we saw the flakes in
+# deployments and smoke-tests
+- type: replace
+  path: /resource_pools/name=vms/cloud_properties/networkComponents?
+  value: [ MaxSpeed: 1000 ]
+
+# Same as above:
+- type: replace
+  path: /resource_pools/name=vms/stemcell?
+  value:
+    url: https://bosh.io/d/stemcells/bosh-softlayer-xen-ubuntu-trusty-go_agent?v=3421.11.5
+    sha1: b10cdc25cc2daf2ce2bb6b3c6f539579c0ff6ba0
+ 
