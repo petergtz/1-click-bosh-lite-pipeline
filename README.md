@@ -25,10 +25,11 @@ cd ~/deployments/bosh-lite-in-sl
 
 sudo bosh create-env --state ./state.json \
     ~/workspace/bosh-deployment/bosh.yml \
+    --vars-store=vars.yml \
     -o ~/workspace/bosh-deployment/softlayer/cpi.yml \
-    -v sl_vlan_public=<PROVIDE>
-    -v sl_vlan_private=<PROVIDE>
-    -v sl_datacenter=<PROVIDE>
+    -v sl_vlan_public=<PROVIDE> \
+    -v sl_vlan_private=<PROVIDE> \
+    -v sl_datacenter=<PROVIDE> \
     -v internal_ip=127.0.0.1 \
     -v sl_vm_domain=<PROVIDE> \
     -v sl_vm_name_prefix=<PROVIDE> \
@@ -48,6 +49,28 @@ Where the variables are defined as:
 - `sl_vm_name_prefix`: An arbitrary prefix for the VM name.
 - `sl_vm_domain`: An arbitrary domain for the VM name. The full name of the VM will be `sl_vm_name_prefix.sl_vm_domain`
 - `sl_username`,`sl_api_key`: This information can be found on your [Softlayer Profile](https://control.softlayer.com/account/user/profile) under **API Access Information** .
+
+Now you alias the environment and set up login credentials:
+
+```bash
+bosh alias-env my-bosh -e <sl_vm_name_prefix>.<sl_vm_domain> --ca-cert <(bosh int ./vars.yml --path /director_ssl/ca)
+export BOSH_CLIENT=admin
+export BOSH_CLIENT_SECRET=`bosh int ./creds.yml --path /admin_password`
+```
+
+Confirm that iw works:
+```bash
+bosh -e my-bosh env
+
+Using environment '<sl_vm_name_prefix>.<sl_vm_domain>' as '?'
+
+Name: ...
+User: admin
+
+Succeeded
+```
+
+_That's it! You can now use your BOSH Lite._
 
 
 ## Creating a BOSH Lite using a Concourse Management Pipeline
