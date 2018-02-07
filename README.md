@@ -120,7 +120,7 @@ fly \
   -t my-target \
   set-pipeline \
   -p my-pipeline \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml) \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml config.yml) \
   -v github-private-key=<PROVIDE> \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )"
 ```

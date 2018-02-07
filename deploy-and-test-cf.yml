@@ -1,0 +1,82 @@
+resources:
+- name: cf-smoke-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-smoke-tests.git
+
+- name: boshlite-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent}
+
+jobs:
+- name: (( concat "deploy-cf-in-" meta.bosh-lite-name ))
+  serial: true
+  plan:
+  - aggregate:
+    - get: 1-click
+    - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+      trigger: true
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+      trigger: true
+      passed: [ (( concat "update-cloud-config-" meta.bosh-lite-name )) ]
+    - get: state
+    - get: cf-deployment
+    - { get: stemcell, resource: boshlite-stemcell, version: {version: "3468.21"} }
+  - task: Generate cf deployment manifest
+    file: 1-click/tasks/generate-cf-deployment-manifest.yml
+    output_mapping:
+      out: manifest
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
+  - aggregate:
+    - put: state
+      params:
+        repository: out-state
+        rebase: true
+    - task: Deploy cf
+      file: 1-click/tasks/bosh-deploy.yml
+      params:
+        BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+    # TODO: Do we want to keep this here? This task makes the pipline less generally useful.
+    - task: Check system_domain DNS
+      file: 1-click/tasks/update-changeip-dns.yml
+      params:
+        BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+        CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
+
+- name:  (( concat "run-cf-smoke-tests-in-" meta.bosh-lite-name ))
+  serial: true
+  plan:
+  - aggregate:
+    - get: 1-click
+    - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+      passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
+      trigger: true
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+      trigger: true
+      passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
+    - get: state
+    - get: cf-smoke-tests
+  - task: Run smoke-tests
+    file: 1-click/tasks/run-smoke-tests.yml
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
+
+- name: (( concat "show-summary-" meta.bosh-lite-name ))
+  plan:
+  - aggregate:
+    - { get: 1-click }
+    - get: state
+    - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+      passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
+      trigger: true
+    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+      trigger: true
+      passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
+  - task: Show Summary
+    file: 1-click/tasks/show-summary.yml
+    params:
+      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
