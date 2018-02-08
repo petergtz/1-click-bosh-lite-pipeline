@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/
+
 bosh2 interpolate cf-deployment/cf-deployment.yml \
     --vars-store state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/vars.yml \
     -o cf-deployment/operations/bosh-lite.yml \
