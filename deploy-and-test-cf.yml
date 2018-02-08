@@ -24,16 +24,14 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell, version: {version: "3468.21"} }
   - task: Generate cf deployment manifest
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
-    output_mapping:
-      out: manifest
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
+  - put: state
+    params:
+      repository: out-state
+      rebase: true
   - aggregate:
-    - put: state
-      params:
-        repository: out-state
-        rebase: true
     - task: Deploy cf
       file: 1-click/tasks/bosh-deploy.yml
       params:
