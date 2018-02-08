@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/
 
