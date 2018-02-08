@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 git config --global user.name "Pipeline"
 git config --global user.email flintstone@cloudfoundry.org
