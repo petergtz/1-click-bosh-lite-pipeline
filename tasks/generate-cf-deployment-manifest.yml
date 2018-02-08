@@ -9,7 +9,6 @@ inputs:
   - name: 1-click
 outputs:
   - name: out-state
-  - name: out
 
 params:
   BOSH_LITE_NAME: unconfigured

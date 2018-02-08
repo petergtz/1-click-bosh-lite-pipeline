@@ -1,23 +1,23 @@
 #!/bin/bash -ex
 
-mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME
-
 # Hack to work around Concourse, which tries to interpret ((variables)).
 # Simply "unescaping" `_(_(` to `((`: 
-echo "$MANIFEST" | sed -e 's/_(_(/((/g' > bosh.yml
+echo "$MANIFEST" | sed -e 's/_(_(/((/g' > /tmp/bosh.yml
 
-bosh2 create-env \
-    --state state/environments/softlayer/director/$BOSH_LITE_NAME/state.json \
-    --vars-store=state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml \
-    bosh.yml \
-    -v director_vm_prefix=$BOSH_LITE_NAME
+commit_if_changed=$(readlink -f 1-click/tasks/commit-if-changed.sh)
 
-tail -n1 /etc/hosts > state/environments/softlayer/director/$BOSH_LITE_NAME/hosts
+mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME
+pushd state/environments/softlayer/director/$BOSH_LITE_NAME
+    bosh2 create-env \
+        --state state.json \
+        --vars-store=vars.yml \
+        /tmp/bosh.yml \
+        -v director_vm_prefix=$BOSH_LITE_NAME
 
-REPO_DIR=state \
-    OP=add \
-    FILENAME="environments/softlayer/director/$BOSH_LITE_NAME/state.json environments/softlayer/director/$BOSH_LITE_NAME/vars.yml environments/softlayer/director/$BOSH_LITE_NAME/hosts" \
-    COMMIT_MESSAGE="Update state for environments/softlayer/director/$BOSH_LITE_NAME" \
-    1-click/tasks/commit-if-changed.sh
+    tail -n1 /etc/hosts > hosts
+
+    git add state.json vars.yml hosts
+    $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
+popd
 
 cp -a state/. out-state

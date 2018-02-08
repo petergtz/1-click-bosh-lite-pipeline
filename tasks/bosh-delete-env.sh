@@ -6,24 +6,21 @@ if [ ! -e state/environments/softlayer/director/$BOSH_LITE_NAME/state.json ]; th
   exit 0
 fi
 
-cat state/environments/softlayer/director/$BOSH_LITE_NAME/hosts >> /etc/hosts
+echo "$MANIFEST" | sed -e 's/_(_(/((/g' > /tmp/bosh.yml
 
-echo "$MANIFEST" | sed -e 's/_(_(/((/g' > bosh.yml
+commit_if_changed=$(readlink -f 1-click/tasks/commit-if-changed.sh)
 
-bosh2 delete-env \
-    --state state/environments/softlayer/director/$BOSH_LITE_NAME/state.json \
-    --vars-store=state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml \
-    bosh.yml \
-    -v director_vm_prefix=$BOSH_LITE_NAME
+pushd state/environments/softlayer/director/$BOSH_LITE_NAME
+    cat hosts >> /etc/hosts
 
-rm -f state/environments/softlayer/director/$BOSH_LITE_NAME/state.json
-rm -f state/environments/softlayer/director/$BOSH_LITE_NAME/vars.yml
-rm -f state/environments/softlayer/director/$BOSH_LITE_NAME/hosts
+    bosh2 delete-env \
+        --state state.json \
+        --vars-store=vars.yml \
+        /tmp/bosh.yml \
+        -v director_vm_prefix=$BOSH_LITE_NAME
 
-REPO_DIR=state \
-    OP=rm \
-    FILENAME="environments/softlayer/director/$BOSH_LITE_NAME/state.json environments/softlayer/director/$BOSH_LITE_NAME/vars.yml environments/softlayer/director/$BOSH_LITE_NAME/hosts" \
-    COMMIT_MESSAGE="Update state for environments/softlayer/director/$BOSH_LITE_NAME" \
-    1-click/tasks/commit-if-changed.sh
+    git rm state.json vars.yml hosts
+    $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
+popd
 
 cp -a state/. out-state
