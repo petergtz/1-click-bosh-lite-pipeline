@@ -76,6 +76,8 @@ _That's it! You can now use your BOSH Lite._
 
 ## Creating a BOSH Lite using a Concourse Management Pipeline
 
+**Prerequisites:** Make sure you have a running [Concourse](concourse.ci) server, the [Fly CLI](https://concourse.ci/fly-cli.html) and the [Spruce CLI](https://github.com/geofffranks/spruce#how-do-i-get-started).
+
 ### Generating the manifest:
 ```bash
 bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
