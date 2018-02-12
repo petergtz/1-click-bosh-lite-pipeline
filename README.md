@@ -55,10 +55,10 @@ Now you alias the environment and set up login credentials:
 ```bash
 bosh alias-env my-bosh -e <sl_vm_name_prefix>.<sl_vm_domain> --ca-cert <(bosh int ./vars.yml --path /director_ssl/ca)
 export BOSH_CLIENT=admin
-export BOSH_CLIENT_SECRET=`bosh int ./creds.yml --path /admin_password`
+export BOSH_CLIENT_SECRET=`bosh int ./vars.yml --path /admin_password`
 ```
 
-Confirm that iw works:
+Confirm that it works:
 ```bash
 bosh -e my-bosh env
 
