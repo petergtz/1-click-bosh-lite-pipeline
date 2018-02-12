@@ -40,7 +40,8 @@ sudo bosh create-env --state ./state.json \
     -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-to-single-dynamic-network-named-default.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-cloud-provider-mbus-host.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml
 ```
 
 Where the variables are defined as:
@@ -93,6 +94,7 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-to-single-dynamic-network-named-default.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-cloud-provider-mbus-host.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
     > bosh-lite-in-sl.yml
 ```
 

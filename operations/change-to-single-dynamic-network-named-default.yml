@@ -17,14 +17,3 @@
       PrimaryBackendNetworkComponent:
         NetworkVlan:
           Id: ((sl_vlan_private))
-
-- type: replace
-  path: /instance_groups/name=bosh/jobs/-
-  value:
-    name: pre-start-scripts
-    release: os-conf
-    properties:
-      script: >
-        echo "$(ifconfig | grep -C1 eth0 | tail -n1 | grep -oE 'addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
-        | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}') ((sl_vm_name_prefix)).((sl_vm_domain))"
-        >> /etc/hosts
