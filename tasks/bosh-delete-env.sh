@@ -19,7 +19,8 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
         /tmp/bosh.yml \
         -v director_vm_prefix=$BOSH_LITE_NAME
 
-    git rm state.json vars.yml hosts
+    git rm vars.yml hosts
+    git add state.json
     $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
 popd
 
