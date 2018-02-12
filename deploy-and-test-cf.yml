@@ -21,7 +21,7 @@ jobs:
       passed: [ (( concat "update-cloud-config-" meta.bosh-lite-name )) ]
     - get: state
     - get: cf-deployment
-    - { get: stemcell, resource: boshlite-stemcell, version: {version: "3468.21"} }
+    - { get: stemcell, resource: boshlite-stemcell, version: {version: "3468.22"} }
   - task: Generate cf deployment manifest
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     params:
