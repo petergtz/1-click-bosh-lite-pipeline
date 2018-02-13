@@ -9,7 +9,7 @@ if [[ -z "$1" ]]; then
 fi
 
 set +e
-  git --no-pager diff --cached --exit-code
+  git --no-pager diff --cached --exit-code --quiet
   HAS_CHANGES=$?
 set -e
 if [[ $HAS_CHANGES -eq 1 ]]; then
