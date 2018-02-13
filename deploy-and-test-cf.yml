@@ -62,7 +62,7 @@ jobs:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
 
-- name: (( concat "show-summary-" meta.bosh-lite-name ))
+- name: (( concat "Show CF login summary for " meta.bosh-lite-name ))
   plan:
   - aggregate:
     - { get: 1-click }
@@ -74,7 +74,7 @@ jobs:
       trigger: true
       passed: [ (( concat "deploy-cf-in-" meta.bosh-lite-name )) ]
   - task: Show Summary
-    file: 1-click/tasks/show-summary.yml
+    file: 1-click/tasks/show-cf-summary.yml
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
       CF_SYSTEM_DOMAIN: (( grab meta.cf-system-domain ))
