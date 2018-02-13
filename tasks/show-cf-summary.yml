@@ -12,4 +12,4 @@ params:
   CF_SYSTEM_DOMAIN: unconfigured
 
 run:
-  path: 1-click/tasks/show-summary.sh
+  path: 1-click/tasks/show-cf-summary.sh
