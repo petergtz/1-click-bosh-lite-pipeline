@@ -26,6 +26,15 @@ resources:
     file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-created" ))
     private_key: {{github-private-key}}
 
+- name: (( concat meta.bosh-lite-name "-ready-for-deployment-events" ))
+  type: semver
+  source:
+    driver: git
+    uri: (( grab meta.state-git-repo ))
+    branch: events
+    file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-ready" ))
+    private_key: {{github-private-key}}
+
 - name: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
   type: semver
   source:
@@ -111,12 +120,17 @@ jobs:
     - { get: 1-click }
     - { get: cf-deployment, trigger: true }
     - get: state
+    - get:  (( concat meta.bosh-lite-name "-ready-for-deployment-events" ))
+      params: { bump: major }
   - task: Update cloud-config
     file: 1-click/tasks/update-cloud-config.yml
     input_mapping:
       cf-deployment: cf-deployment
     params:
       BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+  - put: (( concat meta.bosh-lite-name "-ready-for-deployment-events" ))
+    params:
+      file: (( concat meta.bosh-lite-name "-ready-for-deployment-events/number" ))
 
 - name: (( concat "delete-" meta.bosh-lite-name "-cf-deployment" ))
   serial: true
