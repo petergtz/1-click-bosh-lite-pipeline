@@ -1,10 +1,6 @@
 # Add the contents of `hosts` to your /etc/hosts file
 sudo sh -c 'echo "$HOSTS_ENTRY" >> /etc/hosts'
 
-# Log on to CF
-cf api --skip-ssl-validation "api.$CF_SYSTEM_DOMAIN"
-cf login -u admin -p "$CF_ADMIN_PASSWORD"
-
 # Create the BOSH alias and log in
 bosh alias-env "$BOSH_LITE_NAME" \
   --environment "$DIRECTOR_URL" \
