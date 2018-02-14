@@ -16,7 +16,10 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
 
     tail -n1 /etc/hosts > hosts
 
-    git add state.json vars.yml hosts
+    bosh2 interpolate vars.yml --path /jumpbox_ssh/private_key > jumpbox.key
+    chmod 600 jumpbox.key
+
+    git add state.json vars.yml hosts jumpbox.key
     $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
 popd
 
