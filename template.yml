@@ -7,7 +7,7 @@ resources:
 - name: state
   type: git
   source:
-    uri: (( grab meta.state-git-repo ))
+    uri: ((state_git_repo))
     branch: master
     private_key: {{github-private-key}}
     disable_ci_skip: true
@@ -17,31 +17,31 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
-- name: (( concat meta.bosh-lite-name "-recreation-events" ))
+- name: ((bosh_lite_name))-recreation-events
   type: semver
   source:
     driver: git
-    uri: (( grab meta.state-git-repo ))
+    uri: ((state_git_repo))
     branch: events
-    file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-created" ))
+    file: events-bosh-lites-((bosh_lite_name))-created
     private_key: {{github-private-key}}
 
-- name: (( concat meta.bosh-lite-name "-ready-for-deployment-events" ))
+- name: ((bosh_lite_name))-ready-for-deployment-events
   type: semver
   source:
     driver: git
-    uri: (( grab meta.state-git-repo ))
+    uri: ((state_git_repo))
     branch: events
-    file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-ready" ))
+    file: events-bosh-lites-((bosh_lite_name))-ready
     private_key: {{github-private-key}}
 
-- name: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+- name: ((bosh_lite_name))-cf-deployment-events
   type: semver
   source:
     driver: git
-    uri:  (( grab meta.state-git-repo ))
+    uri:  ((state_git_repo))
     branch: events
-    file: (( concat "events-bosh-lites-" meta.bosh-lite-name "-deployments-cf-deleted" ))
+    file: events-bosh-lites-((bosh_lite_name))-deployments-cf-deleted
     private_key: {{github-private-key}}
 
 - name: every-night
@@ -51,36 +51,36 @@ resources:
     stop: 2:00 AM
 
 jobs:
-- name: (( concat "delete-" meta.bosh-lite-name ))
+- name: delete-((bosh_lite_name))
   serial: true
   plan:
   - aggregate:
     - get: 1-click
-    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+    - get: ((bosh_lite_name))-recreation-events
       params: { bump: major }
     - get: state
   - task: bosh delete-env
     file: 1-click/tasks/bosh-delete-env.yml
     params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      BOSH_LITE_NAME: ((bosh_lite_name))
       MANIFEST: {{bosh-manifest}}
   - put: state
     params:
       repository: out-state
       rebase: true
-  - put: (( concat meta.bosh-lite-name "-recreation-events" ))
+  - put: ((bosh_lite_name))-recreation-events
     params:
-      file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
+      file: ((bosh_lite_name))-recreation-events/number
 
-- name: (( concat "recreate-" meta.bosh-lite-name ))
+- name: recreate-((bosh_lite_name))
   serial: true
   plan:
   - aggregate:
     - get: 1-click
-    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+    - get: ((bosh_lite_name))-recreation-events
       params: { bump: major }
       trigger: true
-      passed: [ (( concat "delete-" meta.bosh-lite-name )) ]
+      passed: [ delete-((bosh_lite_name)) ]
     - get: state
   - task: bosh create-env
     file: 1-click/tasks/bosh-create-env.yml
@@ -88,68 +88,68 @@ jobs:
       # TODO Is this used anywhere?
       manifest-dir: state
     params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      BOSH_LITE_NAME: ((bosh_lite_name))
       MANIFEST: {{bosh-manifest}}
   - put: state
     params:
       repository: out-state
       rebase: true
-  - put: (( concat meta.bosh-lite-name "-recreation-events" ))
+  - put: ((bosh_lite_name))-recreation-events
     params:
-      file: (( concat meta.bosh-lite-name "-recreation-events/number" ))
+      file: ((bosh_lite_name))-recreation-events/number
 
-- name: (( concat "Show BOSH summary for " meta.bosh-lite-name ))
+- name: Show BOSH summary for ((bosh_lite_name))
   plan:
   - aggregate:
-    - { get: 1-click }
+    - { get: 1-click, trigger: true }
     - get: state
-    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+    - get: ((bosh_lite_name))-recreation-events
       trigger: true
-      passed: [ (( concat "recreate-" meta.bosh-lite-name )) ]
+      passed: [ recreate-((bosh_lite_name)) ]
   - task: Show Summary
     file: 1-click/tasks/show-summary.yml
     params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      BOSH_LITE_NAME: ((bosh_lite_name))
 
-- name: (( concat "update-cloud-config-" meta.bosh-lite-name ))
+- name: update-cloud-config-((bosh_lite_name))
   plan:
   - aggregate:
-    - get: (( concat meta.bosh-lite-name "-recreation-events" ))
+    - get: ((bosh_lite_name))-recreation-events
       trigger: true
-      passed: [(( concat "recreate-" meta.bosh-lite-name ))]
+      passed: [recreate-((bosh_lite_name))]
     - { get: 1-click }
     - { get: cf-deployment, trigger: true }
     - get: state
-    - get:  (( concat meta.bosh-lite-name "-ready-for-deployment-events" ))
+    - get:  ((bosh_lite_name))-ready-for-deployment-events
       params: { bump: major }
   - task: Update cloud-config
     file: 1-click/tasks/update-cloud-config.yml
     input_mapping:
       cf-deployment: cf-deployment
     params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
-  - put: (( concat meta.bosh-lite-name "-ready-for-deployment-events" ))
+      BOSH_LITE_NAME: ((bosh_lite_name))
+  - put: ((bosh_lite_name))-ready-for-deployment-events
     params:
-      file: (( concat meta.bosh-lite-name "-ready-for-deployment-events/number" ))
+      file: ((bosh_lite_name))-ready-for-deployment-events/number
 
-- name: (( concat "delete-" meta.bosh-lite-name "-cf-deployment" ))
+- name: delete-((bosh_lite_name))-cf-deployment
   serial: true
   plan:
   - aggregate:
     - get: 1-click
-    - get: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+    - get: ((bosh_lite_name))-cf-deployment-events
       params: { bump: major }
     - get: state
   - task: delete-deployment
     file: 1-click/tasks/bosh-delete-deployment.yml
     params:
       DEPLOYMENT_NAME: cf
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
-  - put: (( concat meta.bosh-lite-name "-cf-deployment-events" ))
+      BOSH_LITE_NAME: ((bosh_lite_name))
+  - put: ((bosh_lite_name))-cf-deployment-events
     params:
-      file: (( concat meta.bosh-lite-name "-cf-deployment-events/number" ))
+      file: ((bosh_lite_name))-cf-deployment-events/number
 
-- name: (( concat "clean-up-" meta.bosh-lite-name ))
+- name: clean-up-((bosh_lite_name))
   serial: true
   plan:
   - aggregate:
@@ -159,9 +159,9 @@ jobs:
   - task: bosh clean-up
     file: 1-click/tasks/bosh-clean-up.yml
     params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      BOSH_LITE_NAME: ((bosh_lite_name))
 
-- name: (( concat "cancel-cf-deployment-task-in-" meta.bosh-lite-name ))
+- name: cancel-cf-deployment-task-in-((bosh_lite_name))
   serial: true
   plan:
   - aggregate:
@@ -170,6 +170,6 @@ jobs:
   - task: bosh -d cf cancel-task
     file: 1-click/tasks/bosh-cancel-task.yml
     params:
-      BOSH_LITE_NAME: (( grab meta.bosh-lite-name ))
+      BOSH_LITE_NAME: ((bosh_lite_name))
       DEPLOYMENT_NAME: cf
 
