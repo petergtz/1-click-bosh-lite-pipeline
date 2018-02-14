@@ -16,7 +16,7 @@ jobs:
     - get: 1-click
     - get: ((bosh_lite_name))-cf-deployment-events
       trigger: true
-    - get: ((bosh_lite_name))-recreation-events
+    - get: ((bosh_lite_name))-ready-for-deployment-events
       trigger: true
       passed: [ update-cloud-config-((bosh_lite_name)) ]
     - get: state
@@ -51,7 +51,7 @@ jobs:
     - get: ((bosh_lite_name))-cf-deployment-events
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
       trigger: true
-    - get: ((bosh_lite_name))-recreation-events
+    - get: ((bosh_lite_name))-ready-for-deployment-events
       trigger: true
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
     - get: state
@@ -70,7 +70,7 @@ jobs:
     - get: ((bosh_lite_name))-cf-deployment-events
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
       trigger: true
-    - get: ((bosh_lite_name))-recreation-events
+    - get: ((bosh_lite_name))-ready-for-deployment-events
       trigger: true
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
   - task: Show Summary
