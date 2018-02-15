@@ -20,6 +20,8 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
         -v director_vm_prefix=$BOSH_LITE_NAME
 
     git rm -f vars.yml hosts state.json
+popd
+pushd state
     $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
 popd
 
