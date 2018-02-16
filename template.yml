@@ -140,14 +140,20 @@ jobs:
     - get: ((bosh_lite_name))-cf-deployment-events
       params: { bump: major }
     - get: state
+    - get:  ((bosh_lite_name))-ready-for-deployment-events
+      params: { bump: major }
   - task: delete-deployment
     file: 1-click/tasks/bosh-delete-deployment.yml
     params:
       DEPLOYMENT_NAME: cf
       BOSH_LITE_NAME: ((bosh_lite_name))
-  - put: ((bosh_lite_name))-cf-deployment-events
-    params:
-      file: ((bosh_lite_name))-cf-deployment-events/number
+  - aggregate:
+    - put: ((bosh_lite_name))-cf-deployment-events
+      params:
+        file: ((bosh_lite_name))-cf-deployment-events/number
+    - put: ((bosh_lite_name))-ready-for-deployment-events
+      params:
+        file: ((bosh_lite_name))-ready-for-deployment-events/number
 
 - name: clean-up-((bosh_lite_name))
   serial: true
