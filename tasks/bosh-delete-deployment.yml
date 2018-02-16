@@ -7,6 +7,9 @@ inputs:
   - name: 1-click
   - name: state
 
+outputs:
+  - name: out-state
+
 params:
   BOSH_LITE_NAME: unconfigured
   DEPLOYMENT_NAME: unconfigured
