@@ -12,7 +12,6 @@ outputs:
 
 params:
   BOSH_LITE_NAME: unconfigured
-  CF_SYSTEM_DOMAIN: unconfigured
 
 run:
   path: 1-click/tasks/generate-cf-deployment-manifest.sh

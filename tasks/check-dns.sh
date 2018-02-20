@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-IP=$(cat state/environments/softlayer/director/$BOSH_LITE_NAME/hosts | cut -f 1 -d ' ')
+IP=$(cat state/environments/softlayer/director/$BOSH_LITE_NAME/ip)
 
 echo "Make sure the following DNS entry exists:"
 echo "hostname *.$CF_SYSTEM_DOMAIN -> $IP"

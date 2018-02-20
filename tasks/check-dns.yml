@@ -12,4 +12,4 @@ params:
   CF_SYSTEM_DOMAIN: unconfigured
 
 run:
-  path: 1-click/tasks/update-changeip-dns.sh
+  path: 1-click/tasks/check-dns.sh

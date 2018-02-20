@@ -8,6 +8,8 @@ export PATH=$PATH:$GOPATH/bin
 cf version
 
 cf_admin_password=$(bosh2 int state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/vars.yml --path /cf_admin_password)
+CF_SYSTEM_DOMAIN=$(cat state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/system_domain)
+
 cat > config.json <<EOF
 {
   "suite_name"                      : "CF_SMOKE_TESTS",
