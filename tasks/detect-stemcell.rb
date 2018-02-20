@@ -20,4 +20,4 @@ end
 
 stemcell_version = "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=#{versions.first}"
 puts stemcell_version
-File.write('stemcell/version', stemcell_version)
+File.write('stemcell/source', stemcell_version)
