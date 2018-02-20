@@ -2,7 +2,7 @@
 
 mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/
 
-CF_SYSTEM_DOMAIN="$(cat state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/ip).nip.io"
+CF_SYSTEM_DOMAIN="$(cat state/environments/softlayer/director/$BOSH_LITE_NAME/ip).nip.io"
 
 bosh2 interpolate cf-deployment/cf-deployment.yml \
     --vars-store state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/vars.yml \
