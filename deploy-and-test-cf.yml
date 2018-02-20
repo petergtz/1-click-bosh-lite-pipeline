@@ -4,10 +4,6 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-smoke-tests.git
 
-- name: boshlite-stemcell
-  type: bosh-io-stemcell
-  source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent}
-
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
   serial: true
@@ -21,7 +17,8 @@ jobs:
       passed: [ update-cloud-config-((bosh_lite_name)) ]
     - get: state
     - get: cf-deployment
-    - { get: stemcell, resource: boshlite-stemcell, version: {version: "3541.4"} }
+  - task: detect-stemcell
+    file: 1-click/tasks/detect-stemcell.yml
   - task: Generate cf deployment manifest
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     params:
