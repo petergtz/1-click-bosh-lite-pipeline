@@ -17,8 +17,8 @@ jobs:
       passed: [ update-cloud-config-((bosh_lite_name)) ]
     - get: state
     - get: cf-deployment
-    - task: detect-stemcell
-      file: 1-click/tasks/detect-stemcell.yml
+  - task: detect-stemcell
+    file: 1-click/tasks/detect-stemcell.yml
   - task: Generate cf deployment manifest
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     params:
