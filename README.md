@@ -26,11 +26,11 @@ cd ~/deployments/bosh-lite-in-sl
 sudo bosh create-env --state ./state.json \
     ~/workspace/bosh-deployment/bosh.yml \
     --vars-store=vars.yml \
-    -o ~/workspace/bosh-deployment/softlayer/cpi.yml \
+    -o ~/workspace/bosh-deployment/softlayer/cpi-dynamic.yml \
+    -v internal_ip=<PROVIDE> \
     -v sl_vlan_public=<PROVIDE> \
     -v sl_vlan_private=<PROVIDE> \
     -v sl_datacenter=<PROVIDE> \
-    -v internal_ip=127.0.0.1 \
     -v sl_vm_domain=<PROVIDE> \
     -v sl_vm_name_prefix=<PROVIDE> \
     -v sl_username=<PROVIDE> \
@@ -38,13 +38,13 @@ sudo bosh create-env --state ./state.json \
     -v director_name=bosh \
     -o ~/workspace/bosh-deployment/bosh-lite.yml \
     -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-to-single-dynamic-network-named-default.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-cloud-provider-mbus-host.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml
+    -o ~/workspace/bosh-deployment/jumpbox-user.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/increase-max-speed.yml
 ```
 
 Where the variables are defined as:
+- `internal_ip`: Must be `<sl_vm_name_prefix>.<sl_vm_domain>`
 - `sl_vlan_public`, `sl_vlan_private`: The numeric IDs of the VLans as they appear in Softlayer
 - `sl_datacenter`: The Softlayer datacenter, e.g. `ams03`.
 - `sl_vm_name_prefix`: An arbitrary prefix for the VM name.
@@ -81,11 +81,11 @@ _That's it! You can now use your BOSH Lite._
 ### Generating the manifest:
 ```bash
 bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
-    -o ~/workspace/bosh-deployment/softlayer/cpi.yml \
-    -v sl_vlan_public=<PROVIDE>
-    -v sl_vlan_private=<PROVIDE>
-    -v sl_datacenter=<PROVIDE>
-    -v internal_ip=127.0.0.1 \
+    -o ~/workspace/bosh-deployment/softlayer/cpi-dynamic.yml \
+    -v internal_ip=<PROVIDE> \
+    -v sl_vlan_public=<PROVIDE> \
+    -v sl_vlan_private=<PROVIDE> \
+    -v sl_datacenter=<PROVIDE> \
     -v sl_vm_domain=<PROVIDE> \
     -v sl_vm_name_prefix=<PROVIDE> \
     -v sl_username=<PROVIDE> \
@@ -93,10 +93,9 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -v director_name=bosh \
     -o ~/workspace/bosh-deployment/bosh-lite.yml \
     -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-to-single-dynamic-network-named-default.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-cloud-provider-mbus-host.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml \
+    -o ~/workspace/bosh-deployment/jumpbox-user.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/increase-max-speed.yml \
     > bosh-lite-in-sl.yml
 ```
 
