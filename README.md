@@ -101,7 +101,7 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
 
 Where the variables are defined as [above](#manually-creating-a-bosh-lite-without-generating-a-concourse-management-pipeline).
 
-## Creating the Concourse Pipeline to Manage the BOSH Lite VM
+### Creating the Concourse Pipeline to Manage the BOSH Lite VM
 
 ```bash
 fly \
