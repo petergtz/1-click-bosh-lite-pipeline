@@ -101,21 +101,6 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
 
 Where the variables are defined as [above](#manually-creating-a-bosh-lite-without-generating-a-concourse-management-pipeline).
 
-### Setting up the Configuration for the Concourse pipeline
-
-Create a file `config.yml` with the following content:
-```yaml
-meta:
-  bosh-lite-name: my-bosh-lite
-  state-git-repo: my-private-git-repo-that-will-contain-secrets
-  cf-system-domain: my.bosh-lite.system.domain.com
-```
-
-You should replace the variables with proper values:
-- `bosh-lite-name`: an arbitrary name you choose. It's used for the job names in the pipeline.
-- `state-git-repo`: a **private** git repository to which you have write access. It will be used to store `state.json`, the `/etc/hosts` entry created by the Softlayer CPI, and `vars.yml` that will contain the secrets. **It must not be publicly readable.**
-- `cf-system-domain`: a custom CF system_domain which points to the IP that is contained in the `/etc/hosts` entry. (This can also be bosh-lite.com, but then Smoke Tests will only run as errand.)
-
 ## Creating the Concourse Pipeline to Manage the BOSH Lite VM
 
 ```bash
@@ -123,11 +108,18 @@ fly \
   -t my-target \
   set-pipeline \
   -p my-pipeline \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml config.yml) \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml) \
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
+  -v state_git_repo=<PROVIDE>
   -v github-private-key=<PROVIDE> \
-  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )"
+  -v bosh_lite_name=<PROVIDE> \
 ```
 
-The `sed` command in the last line is needed, because otherwise Concourse would try to interpret the `((...))` in the manifest. It's basically "escaping" the manifest. The jobs in the pipeline appropriately unescape it.
+You should replace the variables with proper values:
+- `bosh_lite_name`: an arbitrary name you choose. It's used for the job names in the pipeline.
+- `state_git_repo`: a **private** git repository to which you have write access. It will be used to store `state.json`, the `/etc/hosts` entry created by the Softlayer CPI, and `vars.yml` that will contain the secrets. **It must not be publicly readable.**
+- `github-private-key`: A private key to access the git repository.
+
+The `sed` command is needed, because otherwise Concourse would try to interpret the `((...))` in the manifest. It's basically "escaping" the manifest. The jobs in the pipeline appropriately unescape it.
 
 _That's it! Go to your pipeline and let it run!_
