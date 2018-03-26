@@ -76,7 +76,7 @@ _That's it! You can now use your BOSH Lite._
 
 ## Creating a BOSH Lite using a Concourse Management Pipeline
 
-**Prerequisites:** Make sure you have a running [Concourse](https://concourse.ci) server, the [Fly CLI](https://concourse.ci/fly-cli.html) and the [Spruce CLI](https://github.com/geofffranks/spruce#how-do-i-get-started).
+**Prerequisites:** Make sure you have a running [Concourse](https://concourse.ci) server, the [Fly CLI](https://concourse.ci/fly-cli.html) and the [Spruce CLI](https://github.com/geofffranks/spruce#how-do-i-get-started). Spruce version 1.14.0 is known to work fine. Earlier versions may not work as expected.
 
 ### Generating the manifest:
 ```bash
@@ -117,9 +117,11 @@ fly \
 
 You should replace the variables with proper values:
 - `bosh_lite_name`: an arbitrary name you choose. It's used for the job names in the pipeline.
-- `state_git_repo`: a **private** git repository to which you have write access. It will be used to store `state.json`, the `/etc/hosts` entry created by the Softlayer CPI, and `vars.yml` that will contain the secrets. **It must not be publicly readable.**
+- `state_git_repo`: a **private** git repository to which you have write access. It will be used to store `state.json`, the `/etc/hosts` entry created by the Softlayer CPI, and `vars.yml` that will contain the secrets. In order for the pipeline to run, it should have at least one commit in `master` and `events` branches. **It must not be publicly readable.**
 - `github-private-key`: A private key to access the git repository.
 
 The `sed` command is needed, because otherwise Concourse would try to interpret the `((...))` in the manifest. It's basically "escaping" the manifest. The jobs in the pipeline appropriately unescape it.
 
 _That's it! Go to your pipeline and let it run!_
+
+__Hint:__ Start by unpausing it and kicking off `delete-((bosh_lite_name))`.
