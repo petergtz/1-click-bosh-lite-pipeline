@@ -12,6 +12,10 @@ outputs:
 
 params:
   BOSH_LITE_NAME: unconfigured
+  # OPERATIONS should be specified as `-o op1.yml -o op2.yml ...`
+  OPERATIONS:
+  # VARIABLES should be specified as `-v var1=value1 -v var2=value2 ...`
+  VARIABLES:
 
 run:
   path: 1-click/tasks/generate-cf-deployment-manifest.sh
