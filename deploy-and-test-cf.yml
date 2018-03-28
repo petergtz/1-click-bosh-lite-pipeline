@@ -1,3 +1,6 @@
+# Provide default value for cf-deployment customization
+cf_deployment_extra_args: ""
+
 resources:
 - name: cf-smoke-tests
   type: git
@@ -23,6 +26,7 @@ jobs:
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
+      EXTRA_ARGS: ((cf_deployment_extra_args))
   - put: state
     params:
       repository: out-state
