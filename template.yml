@@ -148,6 +148,10 @@ jobs:
       DEPLOYMENT_NAME: cf
       BOSH_LITE_NAME: ((bosh_lite_name))
   - aggregate:
+    - put: state
+      params:
+        repository: out-state
+        rebase: true
     - put: ((bosh_lite_name))-cf-deployment-events
       params:
         file: ((bosh_lite_name))-cf-deployment-events/number
