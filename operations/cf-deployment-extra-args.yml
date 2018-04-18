@@ -1,0 +1,3 @@
+- type: replace
+  path: /jobs/name=deploy-cf-in-((bosh_lite_name))/plan/task=Generate cf deployment manifest/params?/EXTRA_ARGS
+  value: ((cf_deployment_extra_args))
