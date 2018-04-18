@@ -84,9 +84,6 @@ jobs:
     - get: state
   - task: bosh create-env
     file: 1-click/tasks/bosh-create-env.yml
-    input_mapping:
-      # TODO Is this used anywhere?
-      manifest-dir: state
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
       MANIFEST: {{bosh-manifest}}
@@ -182,4 +179,3 @@ jobs:
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
       DEPLOYMENT_NAME: cf
-

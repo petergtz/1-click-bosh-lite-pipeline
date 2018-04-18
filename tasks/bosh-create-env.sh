@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # Hack to work around Concourse, which tries to interpret ((variables)).
-# Simply "unescaping" `_(_(` to `((`: 
+# Simply "unescaping" `_(_(` to `((`:
 echo "$MANIFEST" | sed -e 's/_(_(/((/g' > /tmp/bosh.yml
 
 commit_if_changed=$(readlink -f 1-click/tasks/commit-if-changed.sh)
@@ -14,8 +14,11 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
         /tmp/bosh.yml \
         -v director_vm_prefix=$BOSH_LITE_NAME
 
-    tail -n1 /etc/hosts > hosts
-    cut -d ' ' -f1 < hosts > ip
+    hosts_entry=$(grep $BOSH_LITE_NAME /etc/hosts || true)
+    if [ -n "$hosts_entry" ]; then
+      echo $hosts_entry > hosts
+      cut -d ' ' -f1 < hosts > ip
+    fi
 
     bosh2 interpolate vars.yml --path /jumpbox_ssh/private_key > jumpbox.key
 
