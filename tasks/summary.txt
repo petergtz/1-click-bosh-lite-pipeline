@@ -2,7 +2,7 @@
 sudo sh -c 'echo "$HOSTS_ENTRY" >> /etc/hosts'
 
 # Create the BOSH alias and log in
-bosh alias-env "$BOSH_LITE_NAME" \
+BOSH_ALL_PROXY= bosh alias-env "$BOSH_LITE_NAME" \
   --environment "$DIRECTOR_URL" \
   --ca-cert "$CA_CERT"
 
