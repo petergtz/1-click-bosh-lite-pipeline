@@ -1,0 +1,46 @@
+HOSTNAME=$BOSH_LITE_NAME.flintstone.ams
+
+set +e
+grep --quiet $HOSTNAME /etc/hosts
+HOST_FOUND=$?
+set -e
+if [ $HOST_FOUND -eq 0 ]; then
+  set +e
+  grep $HOSTNAME /etc/hosts | grep --quiet $(cat ip)
+  CORRECT_IP=$?
+  set -e
+  if [ $CORRECT_IP -ne 0 ]; then
+    echo "Please make sure /etc/hosts contains:"
+    echo "$(cat ip) $HOSTNAME"
+    exit 1
+  fi
+fi
+
+echo "Please make sure the host $HOSTNAME is reachable"
+BOSH_ALL_PROXY= bosh alias-env "$BOSH_LITE_NAME" \
+  --environment "$DIRECTOR_URL" \
+  --ca-cert "$CA_CERT"
+
+export BOSH_ENVIRONMENT=$BOSH_LITE_NAME
+
+bosh login \
+  --environment "$BOSH_LITE_NAME" \
+  --client=admin \
+  --client-secret "$CLIENT_SECRET"
+
+chmod 600 jumpbox.key
+
+PORT=$(jot -r 1 2000 65000)
+
+SSH_PID=$(ps ax | grep "[j]umpbox@$HOSTNAME -i jumpbox.key" | cut -d ' ' -f 1)
+if [ -n "$SSH_PID" ]; then
+  kill -9 $SSH_PID
+  sleep 1
+fi
+
+ssh-keygen -q -R "$HOSTNAME" > /dev/null
+ssh-keygen -q -R $(cat ip) > /dev/null
+ssh-keyscan -H "$HOSTNAME" >> ~/.ssh/known_hosts 2> /dev/null
+
+ssh -4 -D $PORT -fNC jumpbox@$HOSTNAME -i jumpbox.key
+export BOSH_ALL_PROXY=socks5://localhost:$PORT

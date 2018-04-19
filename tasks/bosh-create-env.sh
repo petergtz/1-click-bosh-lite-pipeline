@@ -6,6 +6,8 @@ echo "$MANIFEST" | sed -e 's/_(_(/((/g' > /tmp/bosh.yml
 
 commit_if_changed=$(readlink -f 1-click/tasks/commit-if-changed.sh)
 
+envrc_template_filename=$(readlink -nf 1-click/tasks/envrc-template)
+
 mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME
 pushd state/environments/softlayer/director/$BOSH_LITE_NAME
     bosh2 create-env \
@@ -22,7 +24,9 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
 
     bosh2 interpolate vars.yml --path /jumpbox_ssh/private_key > jumpbox.key
 
-    git add state.json vars.yml hosts jumpbox.key ip
+    envsubst < $envrc_template_filename > .envrc
+
+    git add state.json vars.yml hosts jumpbox.key ip .envrc
     $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
 popd
 
