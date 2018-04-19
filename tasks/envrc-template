@@ -16,8 +16,10 @@ if [ $HOST_FOUND -eq 0 ]; then
   fi
 fi
 
+unset BOSH_ALL_PROXY
+
 echo "Please make sure the host $HOSTNAME is reachable"
-BOSH_ALL_PROXY= bosh alias-env "$BOSH_LITE_NAME" \
+bosh alias-env "$BOSH_LITE_NAME" \
   --environment "$DIRECTOR_URL" \
   --ca-cert "$CA_CERT"
 
