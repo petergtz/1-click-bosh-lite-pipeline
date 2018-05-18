@@ -1,4 +1,4 @@
-HOSTNAME=$BOSH_LITE_NAME.flintstone.ams
+HOSTNAME=$BOSH_LITE_NAME.$DOMAIN_NAME
 
 function exit_with_error_message() {
   echo "Error - /etc/hosts is missing the following entry:"

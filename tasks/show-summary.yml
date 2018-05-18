@@ -9,6 +9,7 @@ inputs:
 
 params:
   BOSH_LITE_NAME: unconfigured
+  DOMAIN_NAME: unconfigured
 
 run:
   path: 1-click/tasks/show-summary.sh

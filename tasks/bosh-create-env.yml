@@ -11,6 +11,7 @@ outputs:
 
 params:
   BOSH_LITE_NAME: unconfigured
+  DOMAIN_NAME: unconfigured
   MANIFEST: unconfigured
 
 run:

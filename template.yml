@@ -88,7 +88,9 @@ jobs:
     file: 1-click/tasks/bosh-create-env.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
-      MANIFEST: {{bosh-manifest}}
+      MANIFEST: ((bosh-manifest))
+      DOMAIN_NAME: ((sl_vm_domain))
+
   - put: state
     params:
       repository: out-state
@@ -109,6 +111,7 @@ jobs:
     file: 1-click/tasks/show-summary.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
+      DOMAIN_NAME: ((sl_vm_domain))
 
 - name: update-cloud-config-((bosh_lite_name))
   serial_groups: [ bosh-lite ]
