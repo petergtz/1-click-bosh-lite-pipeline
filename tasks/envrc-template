@@ -32,8 +32,6 @@ bosh login \
 
 chmod 600 jumpbox.key
 
-PORT=$(jot -r 1 2000 65000)
-
 SSH_PID=$(ps ax | grep "[j]umpbox@$HOSTNAME -i jumpbox.key" | cut -d ' ' -f 1)
 if [ -n "$SSH_PID" ]; then
   kill -9 $SSH_PID
@@ -45,4 +43,4 @@ ssh-keygen -q -R $(cat ip) > /dev/null
 ssh-keyscan -H "$HOSTNAME" >> ~/.ssh/known_hosts 2> /dev/null
 
 ssh -4 -D $PORT -fNC jumpbox@$HOSTNAME -i jumpbox.key
-export BOSH_ALL_PROXY=socks5://localhost:$PORT
+export BOSH_ALL_PROXY=ssh+socks5://jumpbox@$HOSTNAME:22?private-key=jumpbox.key
