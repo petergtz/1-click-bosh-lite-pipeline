@@ -1,18 +1,24 @@
-HOSTNAME=$BOSH_LITE_NAME.flintstone.ams
+HOSTNAME=$BOSH_LITE_NAME.$DOMAIN_NAME
+
+function exit_with_error_message() {
+  echo "Error - /etc/hosts is missing the following entry:"
+  echo "$(cat ip) $HOSTNAME"
+  exit 1
+}
 
 set +e
 grep --quiet $HOSTNAME /etc/hosts
 HOST_FOUND=$?
 set -e
-if [ $HOST_FOUND -eq 0 ]; then
+if [ $HOST_FOUND -ne 0 ]; then
+  exit_with_error_message
+else
   set +e
   grep $HOSTNAME /etc/hosts | grep --quiet $(cat ip)
   CORRECT_IP=$?
   set -e
   if [ $CORRECT_IP -ne 0 ]; then
-    echo "Please make sure /etc/hosts contains:"
-    echo "$(cat ip) $HOSTNAME"
-    exit 1
+    exit_with_error_message
   fi
 fi
 

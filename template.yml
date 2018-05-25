@@ -9,7 +9,7 @@ resources:
   source:
     uri: ((state_git_repo))
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
     disable_ci_skip: true
 
 - name: cf-deployment
@@ -24,7 +24,7 @@ resources:
     uri: ((state_git_repo))
     branch: events
     file: events-bosh-lites-((bosh_lite_name))-created
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: ((bosh_lite_name))-ready-for-deployment-events
   type: semver
@@ -33,7 +33,7 @@ resources:
     uri: ((state_git_repo))
     branch: events
     file: events-bosh-lites-((bosh_lite_name))-ready
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: ((bosh_lite_name))-cf-deployment-events
   type: semver
@@ -42,7 +42,7 @@ resources:
     uri:  ((state_git_repo))
     branch: events
     file: events-bosh-lites-((bosh_lite_name))-deployments-cf-deleted
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: every-night
   type: time
@@ -64,7 +64,7 @@ jobs:
     file: 1-click/tasks/bosh-delete-env.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
-      MANIFEST: {{bosh-manifest}}
+      MANIFEST: ((bosh-manifest))
   - put: state
     params:
       repository: out-state
@@ -88,7 +88,9 @@ jobs:
     file: 1-click/tasks/bosh-create-env.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
-      MANIFEST: {{bosh-manifest}}
+      MANIFEST: ((bosh-manifest))
+      DOMAIN_NAME: ((sl_vm_domain))
+
   - put: state
     params:
       repository: out-state
@@ -109,6 +111,7 @@ jobs:
     file: 1-click/tasks/show-summary.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
+      DOMAIN_NAME: ((sl_vm_domain))
 
 - name: update-cloud-config-((bosh_lite_name))
   serial_groups: [ bosh-lite ]

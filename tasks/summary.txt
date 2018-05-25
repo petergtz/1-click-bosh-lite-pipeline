@@ -14,5 +14,5 @@ bosh login \
 # bosh ssh:
 # cd into <state/environments/softlayer/director/$BOSH_LITE_NAME>
 chmod 600 jumpbox.key
-ssh -4 -D 5000 -fNC jumpbox@$BOSH_LITE_NAME.flintstone.ams -i jumpbox.key
+ssh -4 -D 5000 -fNC jumpbox@$BOSH_LITE_NAME.$DOMAIN_NAME -i jumpbox.key
 export BOSH_ALL_PROXY=socks5://localhost:5000

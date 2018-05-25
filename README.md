@@ -113,6 +113,7 @@ fly \
   -v state_git_repo=<PROVIDE>
   -v github-private-key=<PROVIDE> \
   -v bosh_lite_name=<PROVIDE> \
+  -v sl_vm_domain=<PROVIDE>
 ```
 
 You should replace the variables with proper values:
