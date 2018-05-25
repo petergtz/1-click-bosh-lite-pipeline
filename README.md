@@ -117,7 +117,7 @@ fly \
 ```
 
 You should replace the variables with proper values:
-- `bosh_lite_name`: an arbitrary name you choose. It's used for the job names in the pipeline.
+- `bosh_lite_name`: this must match with `sl_vm_name_prefix` from the manifest generation above.
 - `state_git_repo`: a **private** git repository to which you have write access. It will be used to store `state.json`, the `/etc/hosts` entry created by the Softlayer CPI, and `vars.yml` that will contain the secrets. In order for the pipeline to run, it should have at least one commit in `master` and `events` branches. **It must not be publicly readable.**
 - `github-private-key`: A private key to access the git repository.
 
