@@ -42,5 +42,4 @@ ssh-keygen -q -R "$HOSTNAME" > /dev/null
 ssh-keygen -q -R $(cat ip) > /dev/null
 ssh-keyscan -H "$HOSTNAME" >> ~/.ssh/known_hosts 2> /dev/null
 
-ssh -4 -D $PORT -fNC jumpbox@$HOSTNAME -i jumpbox.key
 export BOSH_ALL_PROXY=ssh+socks5://jumpbox@$HOSTNAME:22?private-key=jumpbox.key
