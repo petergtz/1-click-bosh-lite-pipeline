@@ -111,7 +111,7 @@ fly \
   set-pipeline \
   -p my-pipeline \
   -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml) \
-  --var-file=bosh-manifest=bosh-lite-in-sl.yml \
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
   -v state_git_repo=<PROVIDE>
   -v github-private-key=<PROVIDE> \
   -v bosh_lite_name=<PROVIDE> \
@@ -122,6 +122,8 @@ You should replace the variables with proper values:
 - `bosh_lite_name`: this must match with `sl_vm_name_prefix` from the manifest generation above.
 - `state_git_repo`: a **private** git repository to which you have write access. It will be used to store `state.json`, the `/etc/hosts` entry created by the Softlayer CPI, and `vars.yml` that will contain the secrets. In order for the pipeline to run, it should have at least one commit in `master` and `events` branches. **It must not be publicly readable.**
 - `github-private-key`: A private key to access the git repository.
+
+The `sed` command is needed, because otherwise Concourse would try to interpret the `((...))` in the manifest. It's basically "escaping" the manifest. The jobs in the pipeline appropriately unescape it.
 
 _That's it! Go to your pipeline and let it run!_
 
