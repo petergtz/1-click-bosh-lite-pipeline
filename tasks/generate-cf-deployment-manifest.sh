@@ -16,7 +16,7 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
 
 commit_if_changed=$(readlink -f 1-click/tasks/commit-if-changed.sh)
 pushd state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/
-    echo "cf api --skip-ssl-validation api.$CF_SYSTEM_DOMAIN" >> .envrc
+    echo "cf api --skip-ssl-validation api.$CF_SYSTEM_DOMAIN" > .envrc
     echo "cf login -u admin -p $(bosh2 interpolate "vars.yml" --path=/cf_admin_password)" >> .envrc
     echo $CF_SYSTEM_DOMAIN > system_domain
     git add vars.yml manifest.yml system_domain .envrc
