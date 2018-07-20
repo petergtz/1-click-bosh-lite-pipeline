@@ -9,7 +9,6 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
     -o cf-deployment/operations/bosh-lite.yml \
     -v system_domain=$CF_SYSTEM_DOMAIN \
     -o cf-deployment/operations/use-compiled-releases.yml \
-    -o cf-deployment/operations/use-bosh-dns.yml \
     -o 1-click/operations/add-dns-alias-internal-public-access-entry.yml \
     ${EXTRA_ARGS} \
     > state/environments/softlayer/director/$BOSH_LITE_NAME/cf-deployment/manifest.yml
