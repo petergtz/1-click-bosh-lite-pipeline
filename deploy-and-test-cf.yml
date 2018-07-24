@@ -15,7 +15,7 @@ jobs:
       trigger: true
     - get: ((bosh_lite_name))-ready-for-deployment-events
       trigger: true
-      passed: [ update-cloud-config-((bosh_lite_name)) ]
+      passed: [ update-cloud-and-runtime-config-((bosh_lite_name)) ]
     - get: state
     - get: cf-deployment
   - task: detect-stemcell

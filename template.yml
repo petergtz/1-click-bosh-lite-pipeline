@@ -17,6 +17,11 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
 
+- name: bosh-deployment
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
+
 - name: ((bosh_lite_name))-recreation-events
   type: semver
   source:
@@ -113,7 +118,7 @@ jobs:
       BOSH_LITE_NAME: ((bosh_lite_name))
       DOMAIN_NAME: ((sl_vm_domain))
 
-- name: update-cloud-config-((bosh_lite_name))
+- name: update-cloud-and-runtime-config-((bosh_lite_name))
   serial_groups: [ ((bosh_lite_name)) ]
   plan:
   - aggregate:
@@ -122,15 +127,25 @@ jobs:
       passed: [recreate-((bosh_lite_name))]
     - { get: 1-click }
     - { get: cf-deployment, trigger: true }
+    - { get: bosh-deployment }
     - get: state
     - get:  ((bosh_lite_name))-ready-for-deployment-events
       params: { bump: major }
-  - task: Update cloud-config
-    file: 1-click/tasks/update-cloud-config.yml
-    input_mapping:
-      cf-deployment: cf-deployment
+  - aggregate:
+    - task: Update cloud-config
+      file: 1-click/tasks/update-cloud-config.yml
+      input_mapping:
+        cf-deployment: cf-deployment
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
+    - task: Update runtime-config
+      file: 1-click/tasks/update-runtime-config.yml
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
+  - put: state
     params:
-      BOSH_LITE_NAME: ((bosh_lite_name))
+      repository: out-state
+      rebase: true
   - put: ((bosh_lite_name))-ready-for-deployment-events
     params:
       file: ((bosh_lite_name))-ready-for-deployment-events/number
