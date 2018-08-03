@@ -1,0 +1,7 @@
+- type: replace
+  path: /resources/name=cf-deployment/source/uri
+  value: ((cf-deployment-uri))
+
+- type: replace
+  path: /resources/name=cf-deployment/source/branch?
+  value: ((cf-deployment-branch))
