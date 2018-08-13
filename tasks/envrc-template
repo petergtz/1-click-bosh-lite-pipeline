@@ -22,27 +22,13 @@ else
   fi
 fi
 
-unset BOSH_ALL_PROXY
-
 echo "Please make sure the host $HOSTNAME is reachable"
-bosh alias-env "$BOSH_LITE_NAME" \
-  --environment "$DIRECTOR_URL" \
-  --ca-cert "$CA_CERT"
-
-export BOSH_ENVIRONMENT=$BOSH_LITE_NAME
-
-bosh login \
-  --environment "$BOSH_LITE_NAME" \
-  --client=admin \
-  --client-secret "$CLIENT_SECRET"
+export BOSH_ENVIRONMENT="$DIRECTOR_URL"
+export BOSH_CA_CERT="$CA_CERT"
+export BOSH_CLIENT=admin
+export BOSH_CLIENT_SECRET="$CLIENT_SECRET"
 
 chmod 600 jumpbox.key
-
-SSH_PID=$(ps ax | grep "[j]umpbox@$HOSTNAME -i jumpbox.key" | cut -d ' ' -f 1)
-if [ -n "$SSH_PID" ]; then
-  kill -9 $SSH_PID
-  sleep 1
-fi
 
 ssh-keygen -q -R "$HOSTNAME" > /dev/null
 ssh-keygen -q -R $(cat ip) > /dev/null
