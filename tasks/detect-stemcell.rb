@@ -18,6 +18,6 @@ elsif unique_versions_count > 1
   exit 2
 end
 
-stemcell_version = "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent?v=#{versions.first}"
+stemcell_version = "https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-xenial-go_agent?v=#{versions.first}"
 puts stemcell_version
 File.write('stemcell/source', stemcell_version)
