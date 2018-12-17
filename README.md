@@ -15,6 +15,12 @@ git clone https://github.com/cloudfoundry/bosh-deployment ~/workspace/bosh-deplo
 git clone https://github.com/petergtz/1-click-bosh-lite-pipeline ~/workspace/1-click-bosh-lite-pipeline
 ```
 
+**Important:** Latest known working version of bosh-deployment:
+```
+cd ~/workspace/bosh-deployment
+git co b848368815a2c81c59c8710850e7b56bc4649152
+```
+
 ## Manually Creating a BOSH Lite without Generating a Concourse Management Pipeline
 
 _Don't run this step, if you want a Concourse pipeline instead to management your BOSH Lite in the Cloud. Skip directly to [the section below](#creating-a-bosh-lite-using-a-concourse-management-pipeline) in that case._
