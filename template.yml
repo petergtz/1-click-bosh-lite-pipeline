@@ -3,6 +3,7 @@ resources:
   type: git
   source:
     uri: https://github.com/petergtz/1-click-bosh-lite-pipeline.git
+    branch: try-1.19
 
 - name: state
   type: git
