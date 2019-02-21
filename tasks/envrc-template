@@ -1,28 +1,24 @@
-HOSTNAME=$BOSH_LITE_NAME.$DOMAIN_NAME
+BOSHLITE_HOSTNAME=$BOSH_LITE_NAME.$DOMAIN_NAME
 
 function exit_with_error_message() {
   echo "Error - /etc/hosts is missing the following entry:"
-  echo "$(cat ip) $HOSTNAME"
+  echo "$(cat ip) ${BOSHLITE_HOSTNAME}"
   exit 1
 }
 
-set +e
-grep --quiet $HOSTNAME /etc/hosts
+grep --quiet ${BOSHLITE_HOSTNAME} /etc/hosts
 HOST_FOUND=$?
-set -e
 if [ $HOST_FOUND -ne 0 ]; then
   exit_with_error_message
 else
-  set +e
-  grep $HOSTNAME /etc/hosts | grep --quiet $(cat ip)
+  grep ${BOSHLITE_HOSTNAME} /etc/hosts | grep --quiet $(cat ip)
   CORRECT_IP=$?
-  set -e
   if [ $CORRECT_IP -ne 0 ]; then
     exit_with_error_message
   fi
 fi
 
-echo "Please make sure the host $HOSTNAME is reachable"
+echo "Please make sure the host ${BOSHLITE_HOSTNAME} is reachable"
 export BOSH_ENVIRONMENT="$DIRECTOR_URL"
 export BOSH_CA_CERT="$CA_CERT"
 export BOSH_CLIENT=admin
@@ -30,8 +26,11 @@ export BOSH_CLIENT_SECRET="$CLIENT_SECRET"
 
 chmod 600 jumpbox.key
 
-ssh-keygen -q -R "$HOSTNAME" > /dev/null
-ssh-keygen -q -R $(cat ip) > /dev/null
-ssh-keyscan -H "$HOSTNAME" >> ~/.ssh/known_hosts 2> /dev/null
+mkdir -p ~/.ssh
+touch ~/.ssh/known_hosts
 
-export BOSH_ALL_PROXY=ssh+socks5://jumpbox@$HOSTNAME:22?private-key=jumpbox.key
+ssh-keygen -q -R "${BOSHLITE_HOSTNAME}" > /dev/null
+ssh-keygen -q -R $(cat ip) > /dev/null
+ssh-keyscan -H "${BOSHLITE_HOSTNAME}" >> ~/.ssh/known_hosts 2> /dev/null
+
+export BOSH_ALL_PROXY=ssh+socks5://jumpbox@${BOSHLITE_HOSTNAME}:22?private-key=jumpbox.key
