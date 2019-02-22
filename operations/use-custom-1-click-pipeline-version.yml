@@ -1,0 +1,7 @@
+- type: replace
+  path: /resources/name=1-click/source/branch?
+  value: ((1-click-branch))
+
+- type: replace
+  path: /resources/name=1-click/source/uri?
+  value: ((1-click-uri))
