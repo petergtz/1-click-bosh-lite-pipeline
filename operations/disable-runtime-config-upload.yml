@@ -1,0 +1,5 @@
+- type: remove
+  path: /jobs/name=update-cloud-and-runtime-config-((bosh_lite_name))/plan/1/aggregate/task=Update runtime-config
+
+- type: remove
+  path: /jobs/name=update-cloud-and-runtime-config-((bosh_lite_name))/plan/put=state
