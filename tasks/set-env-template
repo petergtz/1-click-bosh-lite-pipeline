@@ -6,17 +6,13 @@ function exit_with_error_message() {
   exit 1
 }
 
-set +e
 grep --quiet ${BOSHLITE_HOSTNAME} /etc/hosts
 HOST_FOUND=$?
-set -e
 if [ $HOST_FOUND -ne 0 ]; then
   exit_with_error_message
 else
-  set +e
   grep ${BOSHLITE_HOSTNAME} /etc/hosts | grep --quiet $(cat ip)
   CORRECT_IP=$?
-  set -e
   if [ $CORRECT_IP -ne 0 ]; then
     exit_with_error_message
   fi

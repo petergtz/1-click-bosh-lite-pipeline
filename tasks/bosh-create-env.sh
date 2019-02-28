@@ -7,6 +7,7 @@ echo "$MANIFEST" | sed -e 's/_(_(/((/g' > /tmp/bosh.yml
 commit_if_changed=$(readlink -f 1-click/tasks/commit-if-changed.sh)
 
 envrc_template_filename=$(readlink -nf 1-click/tasks/envrc-template)
+set_env_template_filename=$(readlink -nf 1-click/tasks/set-env-template)
 
 mkdir -p state/environments/softlayer/director/$BOSH_LITE_NAME
 pushd state/environments/softlayer/director/$BOSH_LITE_NAME
@@ -28,6 +29,7 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
     export CA_CERT="$(bosh2 interpolate vars.yml --path /director_ssl/ca)"
     export CLIENT_SECRET="$(bosh2 interpolate vars.yml --path /admin_password)"
     envsubst '${BOSH_LITE_NAME} ${DIRECTOR_URL} ${CA_CERT} ${CLIENT_SECRET} ${DOMAIN_NAME}' < $envrc_template_filename > .envrc
+    envsubst '${BOSH_LITE_NAME} ${DIRECTOR_URL} ${CA_CERT} ${CLIENT_SECRET} ${DOMAIN_NAME}' < $set_env_template_filename > set-env.sh
 
     git add state.json vars.yml hosts jumpbox.key ip .envrc
     $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
