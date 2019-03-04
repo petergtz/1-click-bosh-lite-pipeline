@@ -31,7 +31,8 @@ pushd state/environments/softlayer/director/$BOSH_LITE_NAME
     envsubst '${BOSH_LITE_NAME} ${DIRECTOR_URL} ${CA_CERT} ${CLIENT_SECRET} ${DOMAIN_NAME}' < $envrc_template_filename > .envrc
     envsubst '${BOSH_LITE_NAME} ${DIRECTOR_URL} ${CA_CERT} ${CLIENT_SECRET} ${DOMAIN_NAME}' < $set_env_template_filename > set-env.sh
 
-    git add state.json vars.yml hosts jumpbox.key ip .envrc
+    chmod u+x set-env.sh
+    git add state.json vars.yml hosts jumpbox.key ip .envrc set-env.sh
     $commit_if_changed "Update state for environments/softlayer/director/$BOSH_LITE_NAME"
 popd
 
