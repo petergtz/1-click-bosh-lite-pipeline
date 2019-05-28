@@ -18,8 +18,10 @@ git clone https://github.com/petergtz/1-click-bosh-lite-pipeline ~/workspace/1-c
 **Important:** Latest known working version of bosh-deployment:
 ```
 cd ~/workspace/bosh-deployment
-git co b848368815a2c81c59c8710850e7b56bc4649152
+git co 80c6c8173978c907d4508bb23aa0f81a3d6068b8
 ```
+
+**Note:** These instructions assume Xenial as BOSH stemcell. If you want to use a BOSH Lite that uses a Trusty BOSH stemcell, check out the tag `trusty` of this git repository.
 
 ## Manually Creating a BOSH Lite without Generating a Concourse Management Pipeline
 
@@ -37,6 +39,9 @@ sudo bosh create-env --state ./state.json \
     -v sl_vlan_public=<PROVIDE> \
     -v sl_vlan_private=<PROVIDE> \
     -v sl_datacenter=<PROVIDE> \
+    -v dummy_network_range=<PROVIDE> \
+    -v dummy_network_gateway=<PROVIDE> \
+    -v dummy_static_ip=<PROVIDE> \
     -v sl_vm_domain=<PROVIDE> \
     -v sl_vm_name_prefix=<PROVIDE> \
     -v sl_username=<PROVIDE> \
@@ -47,16 +52,24 @@ sudo bosh create-env --state ./state.json \
     -o ~/workspace/bosh-deployment/jumpbox-user.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/increase-max-speed.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/disable-virtual-delete-vms.yml
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/disable-virtual-delete-vms.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-dummy-manual-network.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/use-softlayer-cpi-v35.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/use-localhost-blobstore.yml
 ```
 
 Where the variables are defined as:
 - `internal_ip`: Must be `<sl_vm_name_prefix>.<sl_vm_domain>`
 - `sl_vlan_public`, `sl_vlan_private`: The numeric IDs of the VLans as they appear in Softlayer
 - `sl_datacenter`: The Softlayer datacenter, e.g. `ams03`.
+- `dummy_network_range`: A dummy network range. It's unclear if this must actually exist in the Softlayer account, or if it can be completely arbitrary.
+- `dummy_network_gateway`: A dummy network gateway. It's unclear if this must actually be a existing network gateway in the Softlayer account, or if it can be completely arbitrary as long as it is within the network range above.
+- `dummy_static_ip`: A dummy static IP address that gets used as a network interface for the BOSH VM created in the Softlayer account. It must be within the network range above, but doesn't have to exist.
 - `sl_vm_name_prefix`: An arbitrary prefix for the VM name.
 - `sl_vm_domain`: An arbitrary domain for the VM name. The full name of the VM will be `sl_vm_name_prefix.sl_vm_domain`
 - `sl_username`,`sl_api_key`: This information can be found on your [Softlayer Profile](https://control.softlayer.com/account/user/profile) under **API Access Information** .
+
+> **What's all this `dummy_` stuff about?** Turns out there is no useful documentation around on how to use `softlayer/cpi-dynamic.yml`. However, as we want this process to be as simple as possible, we want to use in fact a dynamic network, which auto-assigns an available IP to our newly created BOSH VM. Hence, we use `softlayer/cpi-dynamic.yml`. Unfortunately, when there is no manual network in the list of networks in the `bosh` `instance_group` the Softlayer CPI NG will skip adding an entry to `/etc/hosts`. The entry there, however, is the very hostname `bosh` CLI uses to talk to the VM after it was created. So by adding a dummy manual network, we force the CPI to create that entry in `/etc/hosts` and enable successful communication netween `bosh` CLI and BOSH VM.
 
 Now you alias the environment and set up login credentials:
 
@@ -93,6 +106,9 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -v sl_vlan_public=<PROVIDE> \
     -v sl_vlan_private=<PROVIDE> \
     -v sl_datacenter=<PROVIDE> \
+    -v dummy_network_range=<PROVIDE> \
+    -v dummy_network_gateway=<PROVIDE> \
+    -v dummy_static_ip=<PROVIDE> \
     -v sl_vm_domain=<PROVIDE> \
     -v sl_vm_name_prefix=<PROVIDE> \
     -v sl_username=<PROVIDE> \
@@ -104,6 +120,9 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/increase-max-speed.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/disable-virtual-delete-vms.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-dummy-manual-network.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/use-softlayer-cpi-v35.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/use-localhost-blobstore.yml \
     > bosh-lite-in-sl.yml
 ```
 

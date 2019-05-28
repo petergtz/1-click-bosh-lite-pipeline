@@ -1,0 +1,7 @@
+- type: replace
+  path: /releases/name=bosh-softlayer-cpi
+  value:
+    name: bosh-softlayer-cpi
+    sha1: 167951d729b98fe8d9ee9a088f1615ef2ed98ec1
+    url: https://bosh.io/d/github.com/cloudfoundry/bosh-softlayer-cpi-release?v=35
+    version: "35"

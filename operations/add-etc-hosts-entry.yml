@@ -17,6 +17,6 @@
         mkdir -p /var/vcap/sys/log/pre-start-script
         echo "ifconfig" >> /var/vcap/sys/log/pre-start-script/out.log
         ifconfig >> /var/vcap/sys/log/pre-start-script/out.log
-        echo "$(ifconfig | grep -C1 eth0 | tail -n1 | grep -oE 'addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' \
+        echo "$(ifconfig | grep -C1 'eth0 ' | tail -n1 | grep -oE 'addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' \
           | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}') ((sl_vm_name_prefix)).((sl_vm_domain))" \
           >> /etc/hosts

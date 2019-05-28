@@ -1,0 +1,20 @@
+- type: replace
+  path: /instance_groups/name=bosh/networks/-
+  value:
+    name: default
+    static_ips:
+    - ((dummy_static_ip))
+
+- type: replace
+  path: /networks/-
+  value:
+    name: default
+    type: manual
+    subnets:
+    - range: ((dummy_network_range))
+      gateway: ((dummy_network_gateway))
+      dns: [8.8.8.8, 10.0.80.11, 10.0.80.12]
+      cloud_properties:
+        vlan_ids:
+        - ((sl_vlan_public))
+        - ((sl_vlan_private))
