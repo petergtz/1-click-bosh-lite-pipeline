@@ -1,5 +1,5 @@
 # Increase MaxSpeed again to 1000. This could likely be the reason we saw the flakes in
 # deployments and smoke-tests
 - type: replace
-  path: /resource_pools/name=vms/cloud_properties/networkComponents?
-  value: [ MaxSpeed: 1000 ]
+  path: /resource_pools/name=vms/cloud_properties/max_network_speed?
+  value: 1000
