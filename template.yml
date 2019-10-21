@@ -60,7 +60,7 @@ jobs:
   serial: true
   serial_groups: [ ((bosh_lite_name)) ]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: 1-click
     - get: ((bosh_lite_name))-recreation-events
       params: { bump: major }
@@ -82,7 +82,7 @@ jobs:
   serial: true
   serial_groups: [ ((bosh_lite_name)) ]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: 1-click
     - get: ((bosh_lite_name))-recreation-events
       params: { bump: major }
@@ -106,7 +106,7 @@ jobs:
 
 - name: Show BOSH summary for ((bosh_lite_name))
   plan:
-  - aggregate:
+  - in_parallel:
     - { get: 1-click, trigger: true }
     - get: state
     - get: ((bosh_lite_name))-recreation-events
@@ -121,7 +121,7 @@ jobs:
 - name: update-cloud-and-runtime-config-((bosh_lite_name))
   serial_groups: [ ((bosh_lite_name)) ]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: ((bosh_lite_name))-recreation-events
       trigger: true
       passed: [recreate-((bosh_lite_name))]
@@ -131,7 +131,7 @@ jobs:
     - get: state
     - get:  ((bosh_lite_name))-ready-for-deployment-events
       params: { bump: major }
-  - aggregate:
+  - in_parallel:
     - task: Update cloud-config
       file: 1-click/tasks/update-cloud-config.yml
       input_mapping:
@@ -154,7 +154,7 @@ jobs:
   serial: true
   serial_groups: [ ((bosh_lite_name)) ]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: 1-click
     - get: ((bosh_lite_name))-cf-deployment-events
       params: { bump: major }
@@ -166,7 +166,7 @@ jobs:
     params:
       DEPLOYMENT_NAME: cf
       BOSH_LITE_NAME: ((bosh_lite_name))
-  - aggregate:
+  - in_parallel:
     - put: state
       params:
         repository: out-state
@@ -181,7 +181,7 @@ jobs:
 - name: clean-up-((bosh_lite_name))
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - { get: 1-click }
     - { get: every-night, trigger: true }
     - get: state
@@ -193,7 +193,7 @@ jobs:
 - name: cancel-cf-deployment-task-in-((bosh_lite_name))
   serial: true
   plan:
-  - aggregate:
+  - in_parallel:
     - { get: 1-click }
     - get: state
   - task: bosh -d cf cancel-task

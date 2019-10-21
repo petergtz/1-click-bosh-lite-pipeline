@@ -1,4 +1,4 @@
-resources:
+in_parallelresources:
 - name: cf-smoke-tests
   type: git
   source:
@@ -9,7 +9,7 @@ jobs:
   serial: true
   serial_groups: [ ((bosh_lite_name)) ]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: 1-click
     - get: ((bosh_lite_name))-cf-deployment-events
       trigger: true
@@ -28,7 +28,7 @@ jobs:
     params:
       repository: out-state
       rebase: true
-  - aggregate:
+  - in_parallel:
     - task: Deploy cf
       file: 1-click/tasks/bosh-deploy.yml
       params:
@@ -43,7 +43,7 @@ jobs:
   serial: true
   serial_groups: [ ((bosh_lite_name)) ]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: 1-click
     - get: ((bosh_lite_name))-cf-deployment-events
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
@@ -60,7 +60,7 @@ jobs:
 
 - name: Show CF login summary for ((bosh_lite_name))
   plan:
-  - aggregate:
+  - in_parallel:
     - { get: 1-click }
     - get: state
     - get: ((bosh_lite_name))-cf-deployment-events
