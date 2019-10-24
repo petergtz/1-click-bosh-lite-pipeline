@@ -1,8 +1,14 @@
+#!/bin/bash
+
+# set -x
 BOSHLITE_HOSTNAME=$BOSH_LITE_NAME.$DOMAIN_NAME
+
+export BOSH_LITE_STATE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 
 function exit_with_error_message() {
   echo "Error - /etc/hosts is missing the following entry:"
-  echo "$(cat ip) ${BOSHLITE_HOSTNAME}"
+  echo "$(cat ${BOSH_LITE_STATE_DIR}/ip) ${BOSHLITE_HOSTNAME}"
   exit 1
 }
 
@@ -11,7 +17,7 @@ HOST_FOUND=$?
 if [ $HOST_FOUND -ne 0 ]; then
   exit_with_error_message
 else
-  grep ${BOSHLITE_HOSTNAME} /etc/hosts | grep --quiet $(cat ip)
+  grep ${BOSHLITE_HOSTNAME} /etc/hosts | grep --quiet $(cat ${BOSH_LITE_STATE_DIR}/ip)
   CORRECT_IP=$?
   if [ $CORRECT_IP -ne 0 ]; then
     exit_with_error_message
@@ -24,13 +30,13 @@ export BOSH_CA_CERT="$CA_CERT"
 export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET="$CLIENT_SECRET"
 
-chmod 600 jumpbox.key
+chmod 600 ${BOSH_LITE_STATE_DIR}/jumpbox.key
 
 mkdir -p ~/.ssh
 touch ~/.ssh/known_hosts
 
 ssh-keygen -q -R "${BOSHLITE_HOSTNAME}" > /dev/null
-ssh-keygen -q -R $(cat ip) > /dev/null
+ssh-keygen -q -R $(cat ${BOSH_LITE_STATE_DIR}/ip) > /dev/null
 ssh-keyscan -H "${BOSHLITE_HOSTNAME}" >> ~/.ssh/known_hosts 2> /dev/null
 
-export BOSH_ALL_PROXY=ssh+socks5://jumpbox@${BOSHLITE_HOSTNAME}:22?private-key=jumpbox.key
+export BOSH_ALL_PROXY=ssh+socks5://jumpbox@${BOSHLITE_HOSTNAME}:22?private-key=${BOSH_LITE_STATE_DIR}/jumpbox.key
